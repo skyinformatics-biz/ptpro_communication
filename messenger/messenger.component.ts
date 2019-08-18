@@ -1,0 +1,397 @@
+import { Component, Injectable, OnInit, Renderer2, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { RestfulAPI } from '../../../providers/services/RestfulAPI.service';
+import { SocketEcho } from '../../../providers/services/SocketEcho.service';
+import { eventEmitterService } from '../../../providers/services/eventEmitter.service';
+import { ChatwindowsService } from './services/chatwindows.service';
+import { AuthService } from '../../../providers/guards/auth.service';
+import { SharingService } from '../../../providers/guards/sharing.service';
+
+
+@Component({
+  selector: 'app-messenger',
+  templateUrl: './messenger.component.html',
+  styleUrls: ['./messenger.component.css']
+})
+
+@Injectable()
+export class MessengerComponent extends SocketEcho implements OnInit, AfterViewChecked {
+
+  // One window is used in this version
+  private myMessengerOpened = false;
+  private myMessengerLoaded = false;
+
+  //
+  private myUserId = null;
+
+  // Arrays
+  private myMessengerContacts: Array<any> = [];
+  private myNotifications: Array<any> = [];
+  private myOpenChatWindows: Array<any> = null;
+
+
+  // Numbers
+  private myTotalMessages: number = 0;
+  private myTotalContacts: number = 0;
+
+  // Native
+
+  @ViewChild('messageText') messageText: ElementRef;
+  @ViewChild("requestContact", { read: ElementRef }) private requestContact: ElementRef;
+  @ViewChild("ChatBody", { read: ElementRef }) private chatBody: ElementRef;
+
+
+
+  constructor(private api: RestfulAPI,
+    private SocketEcho: SocketEcho,
+    private auth: AuthService,
+    private renderer: Renderer2,
+    private ChatWindows: ChatwindowsService,
+    private events: eventEmitterService,
+  ) {
+    super();
+
+
+
+
+  }
+
+  ngOnInit() {
+    this.initializeMessenger();
+
+  }
+
+
+  ngAfterViewChecked() {
+
+  }
+
+  private notificationListener() {
+
+    window.Echo.private('Notifications.myUser.' + this.myUserId)
+      .listen('.Notification.recieved', (data) => {
+
+        /* Updates total unread messages by contacts */
+        if (data.type === 0) {
+          this.myNotifications = data;
+          this.myTotalMessages = this.myNotifications['data']['total'];
+
+          if (data.request[0] == true) {
+            this.events.emitNewContact(data.request[1], true);
+          }
+
+        }
+        /* Updates request messages */
+        else if (data.type === 1) {
+          try {
+            this.ChatWindows.Manager[0]['messages'][data.index].accepted = data.desicion;
+            this.ChatWindows.Manager[0]['messages'][data.index].text = data.msg;
+            this.ChatWindows.Manager[0].accepted = data.desicion;
+
+          } catch (error) {
+            console.log(error)
+          }
+        }
+        else if (data.type === 3) {
+
+        }
+        console.log('Notification: ', data);
+      });
+
+  }
+
+  private communicationListener(Channel) {
+
+    window.Echo.private('myCommunication.' + Channel)
+      .listen('.Message.created', (data) => {
+        console.log('MSG', data);
+
+        if (this.myUserId == data.fromId) {
+          this.ChatWindows.Manager[0]['messages'].push({ 'currentUser': true, 'text': data.text, 'fromId': data.fromId, 'type': data.type });
+        }
+        else {
+          this.ChatWindows.Manager[0]['messages'].push({ 'currentUser': false, 'text': data.text, 'fromId': data.fromId, 'type': data.type });
+        }
+
+
+      })
+      .listen('.RequestMessage.created', (data) => {
+        console.log('Request Message recieved');
+      })
+
+  }
+
+  private initializeMessenger() {
+    this.api.get('comsocket', 'secure').subscribe(response => {
+
+      this.myUserId = this.ChatWindows.myUserId = response['currId'];
+      this.myMessengerContacts = response['data'];
+      this.myTotalMessages = response['total_msg'];
+      this.myTotalContacts = this.myMessengerContacts.length;
+
+      /*
+            response['data'].forEach((element, index) => {
+              this.myMessengerContacts[index]['windowOpen'] = false;
+            }); */
+
+      // 1. Finally initiate authentication and connection with socket server
+      this.SocketEcho.initiateConnection(this.auth.Token());
+
+      window.Echo.connector.socket.on('connect', function () {
+        console.log('On connect');
+      });
+
+      // 2. Listen for notification
+      this.notificationListener();
+      this.localEventsListener();
+
+      console.log('myContacts', this.myMessengerContacts);
+
+      this.myMessengerLoaded = true;
+
+    });
+
+  }
+
+  localEventsListener() {
+    this.events.manager.subscribe(
+      (data: any) => {
+
+        if (data.task === 'newcontact') {
+          const contact = data['data'];
+          console.log('Emit contact', contact);
+          var r = (data['remote'] === true) ? ' mottat' : ' sendt';
+          contact['title'] = contact['title'] + r;
+          contact['bold'] = true;
+          contact['total'] = 1;
+          this.myMessengerContacts.unshift(contact);
+          this.myTotalContacts = this.myTotalContacts + 1;
+          var plus = (data['remote'] === true) ? 0 : 1;
+          this.myTotalMessages = this.myTotalMessages + plus;
+          this.myMessengerOpened = true;
+        }
+        else if (data.task === 'updatecontact') {
+          var i = this.myMessengerContacts.findIndex(i => i.id === data.chatId);
+          this.myMessengerContacts[i].title = data.title;
+          this.myMessengerContacts[i].bold = false;
+
+          console.log('context index', i);
+        }
+
+      });
+  }
+
+
+  emitSignal() {
+
+    let a = window.Echo.private('myCommunication.837ea5df8b856de61b13c7b842b5445d').whisper('Typing', { name: 'david', typing: true }).listenForWhisper('Typing', user => {
+      console.log('Hello');
+    });
+    console.log('Emit Signal', a);
+
+  }
+
+  public initiateChat(index, title, contactId, chatId) {
+
+    this.ChatWindows.messagesLoaded = false;
+
+    console.log('ChatWindows', this.ChatWindows.Manager);
+
+    if (this.ChatWindows.Manager[0]['open'] == false) {
+
+      this.ChatWindows.Manager[0].open = this.ChatWindows.Manager[0].loaded = true;
+      this.ChatWindows.Manager[0].title = title;
+      this.ChatWindows.Manager[0].contactId = contactId;
+
+      const i = this.myMessengerContacts.findIndex(i => i.id === chatId)
+      this.ChatWindows.Manager[0].accepted = this.myMessengerContacts[i].accepted;
+
+      this.myTotalMessages = (this.myTotalMessages) - (this.myMessengerContacts[index].total);
+      this.myMessengerContacts[index].total = 0;
+
+
+      this.communicationListener(chatId);
+      this.ChatWindows.getChatData(this.myUserId, contactId, chatId, 0, null);
+      //this.ChatWindows.scrollDownInChatBody(this.chatBody);
+
+      console.log("Initiate connection: " + chatId);
+
+    }
+    else {
+
+      this.closeWindow(index);
+
+      this.ChatWindows.Manager[0].open = true;
+      this.ChatWindows.Manager[0].title = title;
+      this.ChatWindows.Manager[0].contactId = contactId;
+
+      const i = this.myMessengerContacts.findIndex(i => i.id === chatId)
+      this.ChatWindows.Manager[0].accepted = this.myMessengerContacts[i].accepted;
+
+      this.myTotalMessages = (this.myTotalMessages) - (this.myMessengerContacts[index].total);
+      this.myMessengerContacts[index].total = 0;
+
+      this.communicationListener(chatId);
+      this.ChatWindows.getChatData(this.myUserId, contactId, chatId, 0, null);
+      //this.ChatWindows.scrollDownInChatBody(this.chatBody);
+
+      console.log("Initiate/Close connection: " + chatId);
+
+    }
+
+  }
+
+  public closeWindow(index) {
+
+    this.ChatWindows.messagesLoaded = false;
+
+    this.ChatWindows.Manager[0].open = false;
+    this.myMessengerContacts[index]['messages'] = null;
+    this.SocketEcho.CloseConnection(this.myMessengerContacts[index].chatId);
+
+    console.log("Connection closed", this.myMessengerContacts);
+  }
+
+
+  public getChatWindow(index = 0) {
+
+    try {
+      return this.ChatWindows.Manager[index].open;
+    } catch (error) {
+      return false;
+    }
+
+  }
+
+  postMessage(index) {
+    var Text = this.messageText.nativeElement.value;
+    if (Text == '')
+      return;
+
+    var data = {
+      type: 3,
+      text: Text,
+      chatId: this.ChatWindows.Manager[index]['chatId'],
+      senderId: this.myUserId,
+      recieverId: this.ChatWindows.Manager[index]['contactId']
+
+    }
+    console.log(this.myMessengerContacts[index]);
+
+    this.api.post('comsocket', data, 'secure').subscribe(response => {
+
+      console.log(response);
+      this.messageText.nativeElement.value = '';
+      this.ChatWindows.scrollDownInChatBody(this.chatBody);
+
+    });
+
+  }
+
+
+
+
+
+
+
+  /*
+    printMessage(msg, fromId) {
+
+      //this.renderer.addClass(this.ChatWindow1.nativeElement, 'chat-sidebar');
+      var head = this.renderer.createElement('div');
+      this.renderer.addClass(head, 'chat-text2');
+
+      //create div sidebar
+      var div = this.renderer.createElement('div');
+      this.renderer.addClass(div, 'row');
+      this.renderer.addClass(div, 'chatItem');
+
+      if (fromId == this.myUserId)
+        this.renderer.addClass(div, 'currentUserChat');
+      else
+        this.renderer.addClass(div, 'recieverChat0');
+
+      //create div for image
+      var div_img = this.renderer.createElement('div');
+      this.renderer.addClass(div_img, 'col-md-1');
+      this.renderer.setAttribute(div_img, 'style', 'padding:0');
+
+      //create div for text
+      var div_txt = this.renderer.createElement('div');
+      this.renderer.addClass(div_txt, 'col-md-11');
+
+
+      //Create image
+      var img = this.renderer.createElement('img');
+
+      this.renderer.addClass(img, 'pull-right');
+
+
+      this.renderer.addClass(img, 'chatItem');
+      this.renderer.addClass(img, 'img');
+      this.renderer.addClass(img, 'img-rounded');
+      this.renderer.setAttribute(img, 'width', '25');
+      this.renderer.setAttribute(img, 'height', '25');
+      this.renderer.setAttribute(img, 'src', 'https://fakeimg.pl/50/');
+
+      //create span
+      var span = this.renderer.createElement('span');
+
+      if (fromId == this.myUserId)
+        this.renderer.addClass(span, 'pull-right');
+
+
+      this.renderer.addClass(span, 'chatItem');
+      //create text for the span
+      const text = this.renderer.createText(msg);
+      //append text to li element
+      this.renderer.appendChild(span, text);
+      // append img and txt to div - switch if diff users
+      if (fromId == this.myUserId) {
+        this.renderer.appendChild(div, div_txt);
+        this.renderer.appendChild(div, div_img);
+      }
+      else {
+        this.renderer.appendChild(div, div_img);
+        this.renderer.appendChild(div, div_txt);
+      }
+
+
+      this.renderer.appendChild(div_img, img);
+      this.renderer.appendChild(div_txt, span);
+      this.renderer.appendChild(head, div);
+      this.renderer.appendChild(this.ChatWindow1.nativeElement, head);
+
+
+
+      //Now append the li tag to divMessages div
+      //this.renderer.appendChild(this.ChatWindow1.nativeElement, span);
+
+    }
+   */
+
+  private toggleMessenger() {
+    if (this.myMessengerOpened)
+      this.myMessengerOpened = false
+    else
+      this.myMessengerOpened = true;
+  }
+
+  private toggleChatWindow(index) {
+
+  }
+
+  private getRecieverUnreadMessage(userId, total) {
+
+    var n = this.myNotifications;
+
+    try {
+      return n['data'][userId]['amount']['total_unread']
+
+    }
+    catch (err) {
+      return total;
+    }
+  }
+
+
+}

@@ -1,0 +1,27 @@
+
+  .textItem{
+    margin:5px;
+  }
+  
+.requestMessage-accepted{
+  background-color: rgb(255, 245, 226);
+  border-radius: 10px;
+  border:1px solid rgb(255, 129, 0);
+}
+
+.remoteUserText{
+  background-color: rgb(255, 245, 226);
+  border-radius: 10px;
+
+}
+
+.currentUserText{
+  background-color: rgba(247, 247, 247, 0.75);
+  border-radius: 10px;
+}
+
+.chat-text2 {
+
+    bottom: 0px;
+  }
+
