@@ -144,7 +144,7 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
       this.notificationListener();
       this.localEventsListener();
 
-      console.log('myContacts', this.myMessengerContacts);
+      //console.log('myContacts', this.myMessengerContacts);
 
       this.myMessengerLoaded = true;
 
