@@ -56,7 +56,7 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
   }
 
   ngOnInit() {
-    this.initializeMessenger();
+    //this.initializeMessenger();
 
   }
 
