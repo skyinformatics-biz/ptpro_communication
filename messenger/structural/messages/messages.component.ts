@@ -10,8 +10,8 @@ import { eventEmitterService } from '../../../../../providers/services/eventEmit
 })
 export class MessagesComponent implements OnInit {
 
-  @ViewChild("Messages", { read: ElementRef }) private Messages: ElementRef;
-  @ViewChild("chatBody", { read: ElementRef }) private chatBody: ElementRef;
+  @ViewChild("Messages", { read: ElementRef, static: false }) private Messages: ElementRef;
+  @ViewChild("chatBody", { read: ElementRef, static: false }) private chatBody: ElementRef;
 
 
   constructor(public ChatWindows: ChatwindowsService, private events: eventEmitterService) {

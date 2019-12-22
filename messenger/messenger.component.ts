@@ -35,9 +35,9 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
 
   // Native
 
-  @ViewChild('messageText') messageText: ElementRef;
-  @ViewChild("requestContact", { read: ElementRef }) private requestContact: ElementRef;
-  @ViewChild("ChatBody", { read: ElementRef }) private chatBody: ElementRef;
+  @ViewChild('messageText', { read: ElementRef, static: false }) messageText: ElementRef;
+  @ViewChild("requestContact", { read: ElementRef, static: false }) private requestContact: ElementRef;
+  @ViewChild("ChatBody", { read: ElementRef, static: false }) private chatBody: ElementRef;
 
 
 
