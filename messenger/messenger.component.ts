@@ -1,9 +1,14 @@
 import { Component, Injectable, OnInit, Renderer2, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
-import { RestfulAPI } from '../../../providers/services/RestfulAPI.service';
-import { SocketEcho } from '../../../providers/services/SocketEcho.service';
-import { eventEmitterService } from '../../../providers/services/eventEmitter.service';
 import { ChatwindowsService } from './services/chatwindows.service';
+// @ts-ignore
+import { RestfulAPI } from '../../../providers/services/RestfulAPI.service';
+// @ts-ignore
+import { SocketEcho } from '../../../providers/services/SocketEcho.service';
+// @ts-ignore
+import { eventEmitterService } from '../../../providers/services/eventEmitter.service';
+// @ts-ignore
 import { AuthService } from '../../../providers/guards/auth.service';
+// @ts-ignore
 import { SharingService } from '../../../providers/guards/sharing.service';
 
 
@@ -50,13 +55,10 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
   ) {
     super();
 
-
-
-
   }
 
   ngOnInit() {
-    //this.initializeMessenger();
+    this.initializeMessenger();
 
   }
 
@@ -121,7 +123,7 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
   }
 
   private initializeMessenger() {
-    this.api.get('comsocket', 'secure').subscribe(response => {
+    this.api.get('communication', 'secure').subscribe(response => {
 
       this.myUserId = this.ChatWindows.myUserId = response['currId'];
       this.myMessengerContacts = response['data'];
