@@ -279,7 +279,7 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
     }
     console.log(this.myMessengerContacts[index]);
 
-    this.api.post('comsocket', data, 'secure').subscribe(response => {
+    this.api.post('communication', data, 'secure').subscribe(response => {
 
       console.log(response);
       this.messageText.nativeElement.value = '';

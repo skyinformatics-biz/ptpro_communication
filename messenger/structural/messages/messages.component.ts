@@ -55,7 +55,7 @@ export class MessagesComponent implements OnInit {
 
     const data = { type: 2, index: index, chatId: chatId, recieverId: recieverId, desicion: req, initial: initial };
 
-    this.ChatWindows.api.post('comsocket', data, 'secure').subscribe(response => {
+    this.ChatWindows.api.post('communication', data, 'secure').subscribe(response => {
 
       console.log('desicion', data);
       console.log('res', response);

@@ -30,7 +30,7 @@ export class ChatwindowsService {
     var data = { type: 1, chatId: chatId, userId: userId, contactId: contactId, data: content };
 
     // put user chat data in the chat windows
-    this.api.post('comsocket', data, 'secure').subscribe(response => {
+    this.api.post('communication', data, 'secure').subscribe(response => {
 
       var messages = this.Manager[0]['messages'] = [];
       this.Manager[0]['chatId'] = chatId;
