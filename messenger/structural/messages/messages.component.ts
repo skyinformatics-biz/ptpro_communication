@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { ChatwindowsService } from '../../services/chatwindows.service';
-import { eventEmitterService } from '../../../../../providers/services/eventEmitter.service';
+import { chatWindowService } from '../../services/chatWindows.service';
+import { messengerEvents } from '../../services/messengerEvents.service';
 
 
 @Component({
@@ -14,7 +14,7 @@ export class MessagesComponent implements OnInit {
   @ViewChild("chatBody", { read: ElementRef, static: false }) private chatBody: ElementRef;
 
 
-  constructor(public ChatWindows: ChatwindowsService, private events: eventEmitterService) {
+  constructor(public ChatWindows: chatWindowService, private events: messengerEvents) {
 
     this.events.manager.subscribe(
       (data: any) => {

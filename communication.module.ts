@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { ChatwindowsService } from './messenger/services/chatwindows.service';
+import { chatWindowService } from './messenger/services/chatWindows.service';
+import { messengerEvents } from './messenger/services/messengerEvents.service';
 import { MessagesComponent } from './messenger/structural/messages/messages.component';
 import { MessengerComponent } from './messenger/messenger.component';
 
@@ -23,7 +24,7 @@ import { MessengerComponent } from './messenger/messenger.component';
     ])
   ],
   exports: [MessengerComponent],
-  providers: [ChatwindowsService],
+  providers: [chatWindowService, messengerEvents],
 
 })
 export class CommunicationModule { }

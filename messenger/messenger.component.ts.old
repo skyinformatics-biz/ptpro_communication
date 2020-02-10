@@ -5,7 +5,7 @@ import { RestfulAPI } from '../../../providers/services/RestfulAPI.service';
 // @ts-ignore
 import { SocketEcho } from '../../../providers/services/SocketEcho.service';
 // @ts-ignore
-import { messengerEvents } from './services/messengerEvents.service';
+import { eventEmitterService } from '../../../providers/services/eventEmitter.service';
 // @ts-ignore
 import { AuthService } from '../../../providers/guards/auth.service';
 // @ts-ignore
@@ -25,17 +25,21 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
   private myMessengerOpened = false;
   private myMessengerLoaded = false;
 
- 
-  /**  Arrays **/
-  private Contacts: Array<any> = [];
-  private Notifications: Array<any> = [];
+  //
+  private myUserId = null;
+
+  // Arrays
+  private myMessengerContacts: Array<any> = [];
+  private myNotifications: Array<any> = [];
+  private myOpenChatWindows: Array<any> = null;
 
 
-  /**  Messenger variables **/
-  private TotalMessages: number = 0;
-  private TotalContacts: number = 0;
+  // Numbers
+  private myTotalMessages: number = 0;
+  private myTotalContacts: number = 0;
 
   // Native
+
   @ViewChild('messageText', { read: ElementRef, static: false }) messageText: ElementRef;
   @ViewChild("requestContact", { read: ElementRef, static: false }) private requestContact: ElementRef;
   @ViewChild("ChatBody", { read: ElementRef, static: false }) private chatBody: ElementRef;
@@ -45,9 +49,9 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
   constructor(private api: RestfulAPI,
     private SocketEcho: SocketEcho,
     private auth: AuthService,
-    private account: SharingService,
+    private renderer: Renderer2,
     private ChatWindows: chatWindowService,
-    private events: messengerEvents,
+    private events: eventEmitterService,
   ) {
     super();
   }
@@ -64,13 +68,13 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
 
   private notificationListener() {
 
-    window.Echo.private('Notification.User.' + this.account.uid)
+    window.Echo.private('My.Notification' + this.myUserId)
       .listen('.Notification.response', (data) => {
 
         /* Updates total unread messages by contacts */
         if (data.type === 0) {
-          this.Notifications = data;
-          this.TotalMessages = this.Notifications['data']['total'];
+          this.myNotifications = data;
+          this.myTotalMessages = this.myNotifications['data']['total'];
 
           if (data.request[0] == true) {
             this.events.emitNewContact(data.request[1], true);
@@ -101,7 +105,7 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
       .listen('.Message.created', (data) => {
         console.log('MSG', data);
 
-        if (this.account.uid == data.fromId) {
+        if (this.myUserId == data.fromId) {
           this.ChatWindows.Manager[0]['messages'].push({ 'currentUser': true, 'text': data.text, 'fromId': data.fromId, 'type': data.type });
         }
         else {
@@ -119,9 +123,16 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
   private initializeMessenger() {
     this.api.get('communication', 'secure').subscribe(response => {
 
-      this.Contacts = response['contacts'];
-      this.TotalMessages = response['total_unread'];
-      this.TotalContacts = this.Contacts.length;
+      this.myUserId = this.ChatWindows.myUserId = response['currId'];
+      this.myMessengerContacts = response['data'];
+      this.myTotalMessages = response['total_msg'];
+      this.myTotalContacts = this.myMessengerContacts.length;
+
+      /*
+            response['data'].forEach((element, index) => {
+              this.myMessengerContacts[index]['windowOpen'] = false;
+            });      
+      */
 
       // 1. Finally initiate authentication and connection with socket server
       this.SocketEcho.initiateConnection(this.auth.Token());
@@ -153,16 +164,16 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
           contact['title'] = contact['title'] + r;
           contact['bold'] = true;
           contact['total'] = 1;
-          this.Contacts.unshift(contact);
-          this.TotalContacts = this.TotalContacts + 1;
+          this.myMessengerContacts.unshift(contact);
+          this.myTotalContacts = this.myTotalContacts + 1;
           var plus = (data['remote'] === true) ? 0 : 1;
-          this.TotalMessages = this.TotalMessages + plus;
+          this.myTotalMessages = this.myTotalMessages + plus;
           this.myMessengerOpened = true;
         }
         else if (data.task === 'updatecontact') {
-          var i = this.Contacts.findIndex(i => i.id === data.chatId);
-          this.Contacts[i].title = data.title;
-          this.Contacts[i].bold = false;
+          var i = this.myMessengerContacts.findIndex(i => i.id === data.chatId);
+          this.myMessengerContacts[i].title = data.title;
+          this.myMessengerContacts[i].bold = false;
 
           console.log('context index', i);
         }
@@ -192,15 +203,15 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
       this.ChatWindows.Manager[0].title = title;
       this.ChatWindows.Manager[0].contactId = contactId;
 
-      const i = this.Contacts.findIndex(i => i.id === chatId)
-      this.ChatWindows.Manager[0].accepted = this.Contacts[i].accepted;
+      const i = this.myMessengerContacts.findIndex(i => i.id === chatId)
+      this.ChatWindows.Manager[0].accepted = this.myMessengerContacts[i].accepted;
 
-      this.TotalMessages = (this.TotalMessages) - (this.Contacts[index].total);
-      this.Contacts[index].total = 0;
+      this.myTotalMessages = (this.myTotalMessages) - (this.myMessengerContacts[index].total);
+      this.myMessengerContacts[index].total = 0;
 
 
       this.communicationListener(chatId);
-      this.ChatWindows.getChatData(this.account.uid, contactId, chatId, 0, null);
+      this.ChatWindows.getChatData(this.myUserId, contactId, chatId, 0, null);
       //this.ChatWindows.scrollDownInChatBody(this.chatBody);
 
       console.log("Initiate connection: " + chatId);
@@ -214,14 +225,14 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
       this.ChatWindows.Manager[0].title = title;
       this.ChatWindows.Manager[0].contactId = contactId;
 
-      const i = this.Contacts.findIndex(i => i.id === chatId)
-      this.ChatWindows.Manager[0].accepted = this.Contacts[i].accepted;
+      const i = this.myMessengerContacts.findIndex(i => i.id === chatId)
+      this.ChatWindows.Manager[0].accepted = this.myMessengerContacts[i].accepted;
 
-      this.TotalMessages = (this.TotalMessages) - (this.Contacts[index].total);
-      this.Contacts[index].total = 0;
+      this.myTotalMessages = (this.myTotalMessages) - (this.myMessengerContacts[index].total);
+      this.myMessengerContacts[index].total = 0;
 
       this.communicationListener(chatId);
-      this.ChatWindows.getChatData(this.account.uid, contactId, chatId, 0, null);
+      this.ChatWindows.getChatData(this.myUserId, contactId, chatId, 0, null);
       //this.ChatWindows.scrollDownInChatBody(this.chatBody);
 
       console.log("Initiate/Close connection: " + chatId);
@@ -235,10 +246,10 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
     this.ChatWindows.messagesLoaded = false;
 
     this.ChatWindows.Manager[0].open = false;
-    this.Contacts[index]['messages'] = null;
-    this.SocketEcho.CloseConnection(this.Contacts[index].chatId);
+    this.myMessengerContacts[index]['messages'] = null;
+    this.SocketEcho.CloseConnection(this.myMessengerContacts[index].chatId);
 
-    console.log("Connection closed", this.Contacts);
+    console.log("Connection closed", this.myMessengerContacts);
   }
 
 
@@ -261,11 +272,11 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
       type: 3,
       text: Text,
       chatId: this.ChatWindows.Manager[index]['chatId'],
-      senderId: this.account.uid,
+      senderId: this.myUserId,
       recieverId: this.ChatWindows.Manager[index]['contactId']
 
     }
-    console.log(this.Contacts[index]);
+    console.log(this.myMessengerContacts[index]);
 
     this.api.post('communication', data, 'secure').subscribe(response => {
 
@@ -280,6 +291,85 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
 
 
 
+
+
+
+  /*
+    printMessage(msg, fromId) {
+
+      //this.renderer.addClass(this.ChatWindow1.nativeElement, 'chat-sidebar');
+      var head = this.renderer.createElement('div');
+      this.renderer.addClass(head, 'chat-text2');
+
+      //create div sidebar
+      var div = this.renderer.createElement('div');
+      this.renderer.addClass(div, 'row');
+      this.renderer.addClass(div, 'chatItem');
+
+      if (fromId == this.myUserId)
+        this.renderer.addClass(div, 'currentUserChat');
+      else
+        this.renderer.addClass(div, 'recieverChat0');
+
+      //create div for image
+      var div_img = this.renderer.createElement('div');
+      this.renderer.addClass(div_img, 'col-md-1');
+      this.renderer.setAttribute(div_img, 'style', 'padding:0');
+
+      //create div for text
+      var div_txt = this.renderer.createElement('div');
+      this.renderer.addClass(div_txt, 'col-md-11');
+
+
+      //Create image
+      var img = this.renderer.createElement('img');
+
+      this.renderer.addClass(img, 'pull-right');
+
+
+      this.renderer.addClass(img, 'chatItem');
+      this.renderer.addClass(img, 'img');
+      this.renderer.addClass(img, 'img-rounded');
+      this.renderer.setAttribute(img, 'width', '25');
+      this.renderer.setAttribute(img, 'height', '25');
+      this.renderer.setAttribute(img, 'src', 'https://fakeimg.pl/50/');
+
+      //create span
+      var span = this.renderer.createElement('span');
+
+      if (fromId == this.myUserId)
+        this.renderer.addClass(span, 'pull-right');
+
+
+      this.renderer.addClass(span, 'chatItem');
+      //create text for the span
+      const text = this.renderer.createText(msg);
+      //append text to li element
+      this.renderer.appendChild(span, text);
+      // append img and txt to div - switch if diff users
+      if (fromId == this.myUserId) {
+        this.renderer.appendChild(div, div_txt);
+        this.renderer.appendChild(div, div_img);
+      }
+      else {
+        this.renderer.appendChild(div, div_img);
+        this.renderer.appendChild(div, div_txt);
+      }
+
+
+      this.renderer.appendChild(div_img, img);
+      this.renderer.appendChild(div_txt, span);
+      this.renderer.appendChild(head, div);
+      this.renderer.appendChild(this.ChatWindow1.nativeElement, head);
+
+
+
+      //Now append the li tag to divMessages div
+      //this.renderer.appendChild(this.ChatWindow1.nativeElement, span);
+
+    }
+   */
+
   private toggleMessenger() {
     if (this.myMessengerOpened)
       this.myMessengerOpened = false
@@ -291,6 +381,18 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
 
   }
 
+  private getRecieverUnreadMessage(userId, total) {
+
+    var n = this.myNotifications;
+
+    try {
+      return n['data'][userId]['amount']['total_unread']
+
+    }
+    catch (err) {
+      return total;
+    }
+  }
 
 
 }

@@ -5,7 +5,7 @@ import { RestfulAPI } from '../../../../providers/services/RestfulAPI.service';
 @Injectable({
   providedIn: 'root'
 })
-export class ChatwindowsService {
+export class chatWindowService {
 
 
   // UserId

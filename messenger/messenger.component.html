@@ -2,9 +2,9 @@
 
   <div id="ChatBox">
     <Button class="btn btn-primary btn-block chatTitle text-left" *ngIf="myMessengerOpened" (click)="toggleMessenger()">
-      <h2 style="margin:0"><span class="fa fa-envelope"></span> Meldinger ({{this.myTotalMessages}})
+      <h2 style="margin:0"><span class="fa fa-envelope"></span> Meldinger ({{this.TotalMessages}})
       </h2>
-      <h4 style="margin:0"> Aktive sessjoner ({{this.myTotalContacts}})</h4>
+      <h4 style="margin:0"> Aktive sessjoner ({{this.TotalContacts}})</h4>
     </Button>
     <!-- Contact List START -->
     <div class="text-center" *ngIf="myMessengerOpened && !myMessengerLoaded">
@@ -14,7 +14,7 @@
     <div class="chat-sidebar p-1" *ngIf="myMessengerOpened">
       <div #requestContact></div>
       <!-- 1 Row  -->
-      <div class="row contact-item" *ngFor="let session of myMessengerContacts; let i=index"
+      <div class="row contact-item" *ngFor="let session of Contacts; let i=index"
         (click)="initiateChat(i, session.firstname + ' ' + session.lastname, session.ContactId, session.id)">
         <!-- 2 Col **to 1 Row  -->
         <div class="col-md-3 col-sm-3 col-xs-3 text-center">
@@ -46,7 +46,7 @@
                 <!-- 12 i  -->
                 <i class="fa fa-user" aria-hidden="true"></i>
                 {{session.firstname}} {{session.lastname}}
-                ({{this.getRecieverUnreadMessage(session.recieverId, session.total)}})</h4>
+                ({{session.unread}})</h4>
             </div>
           </div>
         </div>
@@ -57,8 +57,8 @@
     <!-- Bottom Messenger expandable   -->
     <Button class="btn btn-primary btn-block chatTitle" *ngIf="!myMessengerOpened" (click)="toggleMessenger()">
       <h2 style="margin:0; color:rgba(255, 255, 255, 0.973);"> <span class="fa fa-envelope"></span> Meldinger
-        ({{this.myTotalMessages}})</h2>
-      <h4 style="margin:0">Aktive sessjoner ({{this.myTotalContacts}})</h4> <span class="fa fa-setting"></span>
+        ({{this.TotalMessages}})</h2>
+      <h4 style="margin:0">Aktive sessjoner ({{this.TotalContacts}})</h4> <span class="fa fa-setting"></span>
     </Button>
     <div *ngIf="myMessengerOpened">
       <table class="messenger-controller">
