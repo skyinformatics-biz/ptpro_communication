@@ -22,8 +22,8 @@ import { SharingService } from '../../../providers/guards/sharing.service';
 export class MessengerComponent extends SocketEcho implements OnInit, AfterViewChecked {
 
   // One window is used in this version
-  private myMessengerOpened = false;
-  private myMessengerLoaded = false;
+  private MessengerOpened = false;
+  private MessengerLoaded = false;
 
  
   /**  Arrays **/
@@ -95,17 +95,18 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
       });
 
   }
-  private communicationListener(Channel) {
+  private communicationListener(senderId, recieverId, Channel) {
 
-    window.Echo.private('myCommunication.' + Channel)
+    // Communication channel exist of, sender, reciever and channel ids.
+    window.Echo.private('Communication.' + senderId + '-'  + recieverId + '.' + Channel)
       .listen('.Message.created', (data) => {
         console.log('MSG', data);
 
-        if (this.account.uid == data.fromId) {
-          this.ChatWindows.Manager[0]['messages'].push({ 'currentUser': true, 'text': data.text, 'fromId': data.fromId, 'type': data.type });
+        if (this.account.uid == data.senderId) {
+          this.ChatWindows.Manager[0]['messages'].push({ 'currentUser': true, 'text': data.text, 'senderId': data.senderId, 'recieverId': data.recieverId, 'type': data.type });
         }
         else {
-          this.ChatWindows.Manager[0]['messages'].push({ 'currentUser': false, 'text': data.text, 'fromId': data.fromId, 'type': data.type });
+          this.ChatWindows.Manager[0]['messages'].push({ 'currentUser': false, 'text': data.text, 'senderId': data.senderId, 'recieverId':data.recieverId, 'type': data.type });
         }
 
 
@@ -123,6 +124,8 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
       this.TotalMessages = response['total_unread'];
       this.TotalContacts = this.Contacts.length;
 
+      console.log(this.Contacts);
+
       // 1. Finally initiate authentication and connection with socket server
       this.SocketEcho.initiateConnection(this.auth.Token());
 
@@ -132,17 +135,17 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
 
       // 2. Listen for notification
       this.notificationListener();
-      this.localEventsListener();
+      this.localMessengerEvents();
 
       //console.log('myContacts', this.myMessengerContacts);
 
-      this.myMessengerLoaded = true;
+      this.MessengerLoaded = true;
 
     });
 
   }
 
-  localEventsListener() {
+  localMessengerEvents() {
     this.events.manager.subscribe(
       (data: any) => {
 
@@ -153,11 +156,13 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
           contact['title'] = contact['title'] + r;
           contact['bold'] = true;
           contact['total'] = 1;
+
+
           this.Contacts.unshift(contact);
           this.TotalContacts = this.TotalContacts + 1;
           var plus = (data['remote'] === true) ? 0 : 1;
           this.TotalMessages = this.TotalMessages + plus;
-          this.myMessengerOpened = true;
+          this.MessengerOpened = true;
         }
         else if (data.task === 'updatecontact') {
           var i = this.Contacts.findIndex(i => i.id === data.chatId);
@@ -180,27 +185,25 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
 
   }
 
-  public initiateChat(index, title, contactId, chatId) {
+  public openChatWindow(index, title, recieverId, chatId) {
 
     this.ChatWindows.messagesLoaded = false;
-
-    console.log('ChatWindows', this.ChatWindows.Manager);
 
     if (this.ChatWindows.Manager[0]['open'] == false) {
 
       this.ChatWindows.Manager[0].open = this.ChatWindows.Manager[0].loaded = true;
       this.ChatWindows.Manager[0].title = title;
-      this.ChatWindows.Manager[0].contactId = contactId;
+      this.ChatWindows.Manager[0].recieverId = recieverId;
 
-      const i = this.Contacts.findIndex(i => i.id === chatId)
-      this.ChatWindows.Manager[0].accepted = this.Contacts[i].accepted;
+      //const i = this.Contacts.findIndex(i => i.id === chatId)
+      this.ChatWindows.Manager[0].accepted = this.Contacts[index].accepted;
 
       this.TotalMessages = (this.TotalMessages) - (this.Contacts[index].total);
       this.Contacts[index].total = 0;
 
 
-      this.communicationListener(chatId);
-      this.ChatWindows.getChatData(this.account.uid, contactId, chatId, 0, null);
+      this.communicationListener(this.account.uid, recieverId, chatId);
+      this.ChatWindows.getChatData(this.account.uid, recieverId, chatId, 0, null);
       //this.ChatWindows.scrollDownInChatBody(this.chatBody);
 
       console.log("Initiate connection: " + chatId);
@@ -212,16 +215,16 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
 
       this.ChatWindows.Manager[0].open = true;
       this.ChatWindows.Manager[0].title = title;
-      this.ChatWindows.Manager[0].contactId = contactId;
+      this.ChatWindows.Manager[0].contactId = recieverId;
 
-      const i = this.Contacts.findIndex(i => i.id === chatId)
-      this.ChatWindows.Manager[0].accepted = this.Contacts[i].accepted;
+      //const i = this.Contacts.findIndex(i => i.id === chatId)
+      this.ChatWindows.Manager[0].accepted = this.Contacts[index].accepted;
 
       this.TotalMessages = (this.TotalMessages) - (this.Contacts[index].total);
       this.Contacts[index].total = 0;
 
-      this.communicationListener(chatId);
-      this.ChatWindows.getChatData(this.account.uid, contactId, chatId, 0, null);
+      this.communicationListener(this.account.uid, recieverId, chatId);
+      this.ChatWindows.getChatData(this.account.uid, recieverId, chatId, 0, null);
       //this.ChatWindows.scrollDownInChatBody(this.chatBody);
 
       console.log("Initiate/Close connection: " + chatId);
@@ -281,10 +284,10 @@ export class MessengerComponent extends SocketEcho implements OnInit, AfterViewC
 
 
   private toggleMessenger() {
-    if (this.myMessengerOpened)
-      this.myMessengerOpened = false
+    if (this.MessengerOpened)
+      this.MessengerOpened = false
     else
-      this.myMessengerOpened = true;
+      this.MessengerOpened = true;
   }
 
   private toggleChatWindow(index) {

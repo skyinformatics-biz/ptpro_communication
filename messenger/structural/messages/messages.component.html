@@ -42,13 +42,13 @@
         <div *ngIf="x.type == 1 && x.memberType == 'Seller' && x.accepted == 2" class="row">
           <div class="col-md-6">
             <hr>
-            <a class="btn btn-primary button-radius" (click)="postRequestDesicion(i, x.fromId, 1, this.ChatWindows.Manager[i]['chatId'])"><i
+            <a class="btn btn-primary button-radius" (click)="postRequestDesicion(i, x.recieverId, 1, this.ChatWindows.Manager[i]['chatId'])"><i
                 class="fa fa-check" aria-hidden="true"></i> Godta</a>
             <br>
           </div>
           <div class="col-md-6">
             <hr>
-            <a class="btn btn-primary button-radius" (click)="postRequestDesicion(i, x.fromId, 0, this.ChatWindows.Manager[i]['chatId'])"><i
+            <a class="btn btn-primary button-radius" (click)="postRequestDesicion(i, x.recieverId, 0, this.ChatWindows.Manager[i]['chatId'])"><i
                 class="fa fa-times" aria-hidden="true"></i> Avslå</a>
             <br>
           </div>
