@@ -2,15 +2,13 @@ import { Injectable, ViewChild, ElementRef } from '@angular/core';
 // @ts-ignore
 import { RestfulAPI } from '../../../../providers/services/RestfulAPI.service';
 import { SharingService } from '../../../../providers/guards/sharing.service';
+import { MessengerCore } from './messenger-core.service'
+import { SocketEcho } from '../../../../providers/services/SocketEcho.service'
 
 @Injectable({
   providedIn: 'root'
 })
-export class chatWindowService {
-
-
-  // UserId
-  public myUserId = null;
+export class ChatWindows {
 
   // Chat window manager
   public Manager: Array<any> = [];
@@ -18,7 +16,7 @@ export class chatWindowService {
   //
   public messagesLoaded = false;
 
-  constructor(public api: RestfulAPI, public account:SharingService) {
+  constructor(public api: RestfulAPI, public account: SharingService, public SocketEcho:SocketEcho) {
 
     // Windows allow 3
     this.Manager[0] = { 'chatId': null, 'title': null, 'open': false, 'loaded': false, 'recieverId': null, 'messages': [], accepted: 2 };
@@ -49,11 +47,21 @@ export class chatWindowService {
       });
 
       this.messagesLoaded = true;
-   
+
 
     });
   }
 
+  public close(index) {
+
+    this.messagesLoaded = false;
+
+    this.Manager[0].open = false;
+    //this.Contacts[index]['messages'] = null;
+    this.SocketEcho.CloseConnection(this.Manager[index].chatId);
+
+    console.log("Connection closed", this.Manager);
+  }
 
 
   scrollDownInChatBody(chatBody) {
