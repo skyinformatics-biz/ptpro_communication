@@ -10,43 +10,53 @@ import { SocketEcho } from '../../../../../providers/services/SocketEcho.service
   templateUrl: './messages.component.html',
   styleUrls: ['./messages.component.css']
 })
-export class MessagesComponent extends ChatWindows implements OnInit {
+export class MessagesComponent implements OnInit {
 
   @ViewChild("Messages", { read: ElementRef, static: false }) private Messages: ElementRef;
   @ViewChild("chatBody", { read: ElementRef, static: false }) private chatBody: ElementRef;
 
-  private initialMessageClient = "You're request to trainers has been sent";
-  private initialMessageSeller = "You have got an request from a new client, please accept or reject the offer";
+  private initialMessageClient = "Your request to the trainer has been sent. Please wait for response for their response.";
+  private initialMessageSeller = "You have got an request from a new client, please accept or reject the offer.";
 
+  public messagesLoaded = true;
 
-  constructor(private events: Events, api:RestfulAPI, account:SharingService, socket:SocketEcho) {
-    super(api, account, socket);
-    
+  constructor(private Chat: ChatWindows, private events: Events, private api: RestfulAPI, private account: SharingService, private socket: SocketEcho) {
+    //super(api, account, socket);
+
     this.events.Manager.subscribe(
       (data: any) => {
 
         if (data.task === 'requestmessage') {
 
-          this.Window[0]['messages'][data.index].accepted = data.desicion;
-          this.Window[0]['messages'][data.index].text = 'Kontakten er etablert';
+          this.Chat.Window[0]['messages'][data.index].accepted = data.desicion;
+          this.Chat.Window[0]['messages'][data.index].text = 'Kontakten er etablert';
 
           this.events.emitUpdateContact('Forespørsel godkjent', data.chatId);
 
         }
 
       });
+
+
   }
 
-  public getRequestMessageText(type){
+  public getRequestMessageText(index, type) {
 
-      switch (type) {
-        case 1:
-          const message = (this.account.memberType === 'Client') ? this.initialMessageClient : this.initialMessageSeller;
-          return message;
-      
-        default:
-          break;
-      }
+    switch (type) {
+      case 1:
+        var initialMessage = this.Chat.Window[0].accepted;
+        if (initialMessage == 2) {
+          var message = this.Chat.Window[0]['messages'][0] = (this.account.memberType === 'Client') ? this.initialMessageClient : this.initialMessageSeller;
+        }
+        else if (initialMessage == 1) {
+          var message = "Contact has been etablished."
+        }
+
+        return message;
+
+      default:
+        return "No message at the moment.";
+    }
 
 
   }
@@ -69,7 +79,7 @@ export class MessagesComponent extends ChatWindows implements OnInit {
 
     var initial = (index === 0) ? true : false;
     const data = { type: 2, index: index, chatId: chatId, recieverId: recieverId, desicion: req, initial: initial };
-    
+
     this.api.post('communication', data, 'secure').subscribe(response => {
 
       console.log('desicion', data);
@@ -79,7 +89,7 @@ export class MessagesComponent extends ChatWindows implements OnInit {
 
     });
 
-    this.Window[0].accepted = req;
+    this.Chat.Window[0].accepted = req;
 
   }
 

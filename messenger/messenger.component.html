@@ -29,10 +29,11 @@
             <div class="col-md-12">
               <h4 [ngClass]="{ 'font-weight-bold': session.bold}" style="margin:0">
                 <i class="fa" [ngClass]="{
+                  'fa-envelope text-success': session.bold == true,
                   'fa-clock-o text-warning':session.accepted === 2,
                   'fa-check text-success':session.accepted === 1,
-                  'fa-times text-danger':session.accepted === 0,
-                  'fa-envelope text-success': session.bold == true
+                  'fa-times text-danger':session.accepted === 0
+
                 }" aria-hidden="true"></i> {{session.title}}</h4>
             </div>
           </div>

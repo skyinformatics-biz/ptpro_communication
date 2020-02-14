@@ -16,10 +16,10 @@ export class ChatWindows {
   //
   public messagesLoaded = false;
 
-  constructor(public api: RestfulAPI, public account: SharingService, public SocketEcho:SocketEcho) {
+  constructor(public api: RestfulAPI, public account: SharingService, public SocketEcho: SocketEcho) {
 
     // Windows allow 3
-    this.Window[0] = { 'chatId': null, 'title': null, 'open': false, 'loaded': true, 'recieverId': null, 'messages': [], accepted: 2 };
+    this.Window[0] = { 'chatId': null, 'title': null, 'open': false, 'loaded': false, 'recieverId': null, 'messages': [], accepted: 2 };
     this.Window[1] = { 'chatId': null, 'title': null, 'open': false, 'loaded': false, 'recieverId': null, 'messages': [], accepted: 2 };
     this.Window[2] = { 'chatId': null, 'title': null, 'open': false, 'loaded': false, 'recieverId': null, 'messages': [], accepted: 2 };
 
@@ -31,22 +31,35 @@ export class ChatWindows {
     // put user chat data in the chat windows
     this.api.post('communication', data, 'secure').subscribe(response => {
 
-      var messages = this.Window[0]['messages'] = [];
+      this.Window[0]['messages'] = response;
       this.Window[0]['chatId'] = chatId;
 
-      response.forEach((element, index) => {
+      response.forEach((user, index) => {
 
-        if (element.senderId != this.account.uid) {
+        // First initial message
+        if (this.Window[0].accepted == 2) {
+          this.Window[0].accepted = user.accepted;
+        }
+
+        if (user.senderId != this.account.uid) {
           var currentUser = false;
-          this.Window[0]['messages'][index] = { 'currentUser': currentUser, 'recieverId': element.recieverId, 'text': element.text, 'type': element.type, 'memberType': element.memberType, 'accepted': element.accepted };
+          this.Window[0]['messages'][index] = { 'currentUser': currentUser, 'senderId': user.senderId, 'recieverId': user.recieverId, 'text': user.text, 'type': user.type, 'memberType': user.memberType, 'accepted': user.accepted };
         }
         else {
           var currentUser = true;
-          this.Window[0]['messages'][index] = { 'currentUser': currentUser, 'recieverId': element.recieverId, 'text': element.text, 'type': element.type, 'memberType': element.memberType, 'accepted': element.accepted };
+          this.Window[0]['messages'][index] = { 'currentUser': currentUser, 'senderId': user.senderId, 'recieverId': user.recieverId, 'text': user.text, 'type': user.type, 'memberType': user.memberType, 'accepted': user.accepted };
         }
+
+
+
+
       });
 
       this.Window[0].loaded = true;
+
+
+
+      console.log("response", response);
 
 
     });

@@ -45,7 +45,7 @@ export class MessengerCore extends SocketEcho {
     super();
   }
 
-  public notificationListener() {
+  public remoteNotificationListener() {
 
     window.Echo.private('Notification.User.' + this.account.uid)
       .listen('.Notification.response', (data) => {
@@ -110,14 +110,12 @@ export class MessengerCore extends SocketEcho {
           var remote = (messengerEvent['remote'] === true) ? ' mottat' : ' sendt';
           contactPlan['title'] = contactPlan['title'] + remote;
           contactPlan['bold'] = true;
-          contactPlan['total'] = 1;
+          contactPlan['unread'] = 1;
 
           console.log("New Contact");
 
           this.Contacts.unshift(contactPlan);
           this.TotalContacts = this.TotalContacts + 1;
-          //var plus = (messengerEvent['remote'] === true) ? 0 : 1;
-          //this.TotalMessages = this.TotalMessages + plus;
           this.MessengerOpened = true;
         }
         else if (messengerEvent.task === 'updatecontact') {
