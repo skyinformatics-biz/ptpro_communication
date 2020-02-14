@@ -75,21 +75,21 @@ export class MessagesComponent implements OnInit {
     }
   }
 
-  postRequestDesicion(index, recieverId, req, chatId) {
+  postRequestDesicion(index, chatId, recieverId, salesPlanId, request_option) {
 
-    var initial = (index === 0) ? true : false;
-    const data = { type: 2, index: index, chatId: chatId, recieverId: recieverId, desicion: req, initial: initial };
+    var initialMessage = (index === 0) ? true : false;
+    const data = { type: 2, index: index, chatId: chatId, recieverId: recieverId, desicion: request_option, initial: initialMessage };
 
     this.api.post('communication', data, 'secure').subscribe(response => {
 
       console.log('desicion', data);
       console.log('res', response);
 
-      this.events.emitRequestDesicion(req, index, chatId);
+      this.events.emitRequestDesicion(request_option, index, chatId);
 
     });
 
-    this.Chat.Window[0].accepted = req;
+    this.Chat.Window[0].accepted = request_option;
 
   }
 

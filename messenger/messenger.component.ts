@@ -27,9 +27,9 @@ export class MessengerComponent extends MessengerCore implements OnInit {
     public SocketEcho: SocketEcho,
     public auth: AuthService,
     public account: SharingService,
-    public WindowManager: ChatWindows,
+    public Chat: ChatWindows,
     public events: Events) {
-    super(api, SocketEcho, auth, account, WindowManager, events);
+    super(api, SocketEcho, auth, account, Chat, events);
   }
 
   ngOnInit() {
@@ -84,7 +84,7 @@ export class MessengerComponent extends MessengerCore implements OnInit {
   public getChatWindow(index = 0) {
 
     try {
-      return this.WindowManager.Window[index].open;
+      return this.Chat.Window[index].open;
     } catch (error) {
       return false;
     }

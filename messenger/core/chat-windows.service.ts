@@ -19,13 +19,13 @@ export class ChatWindows {
   constructor(public api: RestfulAPI, public account: SharingService, public SocketEcho: SocketEcho) {
 
     // Windows allow 3
-    this.Window[0] = { 'chatId': null, 'title': null, 'open': false, 'loaded': false, 'recieverId': null, 'messages': [], accepted: 2 };
-    this.Window[1] = { 'chatId': null, 'title': null, 'open': false, 'loaded': false, 'recieverId': null, 'messages': [], accepted: 2 };
-    this.Window[2] = { 'chatId': null, 'title': null, 'open': false, 'loaded': false, 'recieverId': null, 'messages': [], accepted: 2 };
+    this.Window[0] = { 'chatId': null, 'title': null, 'salesPlanId':null, 'recieverId': null, 'messages': [], accepted: 2, 'open': false, 'loaded': false };
+    this.Window[1] = { 'chatId': null, 'title': null, 'salesPlanId':null, 'recieverId': null, 'messages': [], accepted: 2, 'open': false, 'loaded': false };
+    this.Window[2] = { 'chatId': null, 'title': null, 'salesPlanId':null, 'recieverId': null, 'messages': [], accepted: 2, 'open': false, 'loaded': false };
 
   }
 
-  public getChatData(userId, recieverId, chatId, reset = 0, content = null) {
+  public getCommunicationData(userId, recieverId, chatId, reset = 0, content = null) {
     var data = { type: 1, chatId: chatId, userId: userId, contactId: recieverId, data: content };
 
     // put user chat data in the chat windows
@@ -49,12 +49,9 @@ export class ChatWindows {
           var currentUser = true;
           this.Window[0]['messages'][index] = { 'currentUser': currentUser, 'senderId': user.senderId, 'recieverId': user.recieverId, 'text': user.text, 'type': user.type, 'memberType': user.memberType, 'accepted': user.accepted };
         }
-
-
-
-
       });
 
+      this.Window[0].salesPlanId = response[0].salesPlanId;
       this.Window[0].loaded = true;
 
 
@@ -76,6 +73,7 @@ export class ChatWindows {
     console.log("Connection closed", this.Window);
   }
 
+  
 
   scrollDownInChatBody(chatBody) {
     try {

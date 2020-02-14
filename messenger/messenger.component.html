@@ -84,9 +84,9 @@
     <div class="chat-head" (click)="toggleChatWindow()">
       <div class="row">
         <div class="col-md-12 text-center">
-          <span class="fa fa-user"></span> {{this.WindowManager.Window[0].title}}
+          <span class="fa fa-user"></span> {{this.Chat.Window[0].title}}
 
-          <span class="fa fa-close pull-right" (click)="this.WindowManager.close(0)"></span>
+          <span class="fa fa-close pull-right" (click)="this.Chat.close(0)"></span>
         </div>
         <div class="row">
           <div class="col-md-12">
@@ -99,9 +99,9 @@
     <div class="chat-body">
       <app-messages #chatBody></app-messages>
     </div>
-    <div *ngIf="this.WindowManager.Window[0].accepted == 1">
+    <div *ngIf="this.Chat.Window[0].accepted == 1">
       <div class="form-group border-top" style="visibility:hidden"
-        [ngStyle]="{'visibility':this.WindowManager.Window[0].accepted == 1 ? 'visible' : 'hidden' }"
+        [ngStyle]="{'visibility':this.Chat.Window[0].accepted == 1 ? 'visible' : 'hidden' }"
         *ngIf="getChatWindow(0)">
         <table class="window-controller">
           <tr>
