@@ -40,7 +40,7 @@ export class MessengerCore extends SocketEcho {
     public SocketEcho: SocketEcho,
     public auth: AuthService,
     public account: SharingService,
-    public Windows: ChatWindows,
+    public WindowManager: ChatWindows,
     public events: Events) {
     super();
   }
@@ -63,9 +63,9 @@ export class MessengerCore extends SocketEcho {
         /* Updates option/type request messages */
         else if (data.type === 1) {
           try {
-            this.Windows.Manager[0]['messages'][data.index].accepted = data.desicion;
-            this.Windows.Manager[0]['messages'][data.index].text = data.msg;
-            this.Windows.Manager[0].accepted = data.desicion;
+            this.WindowManager.Window[0]['messages'][data.index].accepted = data.desicion;
+            this.WindowManager.Window[0]['messages'][data.index].text = data.msg;
+            this.WindowManager.Window[0].accepted = data.desicion;
 
           } catch (error) {
             console.log(error)
@@ -87,10 +87,10 @@ export class MessengerCore extends SocketEcho {
         console.log('MSG', data);
 
         if (this.account.uid == data.senderId) {
-          this.Windows.Manager[0]['messages'].push({ 'currentUser': true, 'text': data.text, 'senderId': data.senderId, 'recieverId': data.recieverId, 'type': data.type });
+          this.WindowManager.Window[0]['messages'].push({ 'currentUser': true, 'text': data.text, 'senderId': data.senderId, 'recieverId': data.recieverId, 'type': data.type });
         }
         else {
-          this.Windows.Manager[0]['messages'].push({ 'currentUser': false, 'text': data.text, 'senderId': data.senderId, 'recieverId': data.recieverId, 'type': data.type });
+          this.WindowManager.Window[0]['messages'].push({ 'currentUser': false, 'text': data.text, 'senderId': data.senderId, 'recieverId': data.recieverId, 'type': data.type });
         }
 
 
@@ -106,21 +106,18 @@ export class MessengerCore extends SocketEcho {
       (messengerEvent: any) => {
 
         if (messengerEvent.task === 'newcontact') {
-          const contact = messengerEvent['data'];
-          console.log('Emit contact', contact);
+          const contactPlan = messengerEvent['data'];
           var remote = (messengerEvent['remote'] === true) ? ' mottat' : ' sendt';
-          contact['title'] = contact['title'] + remote;
-          contact['bold'] = true;
-          contact['total'] = 1;
+          contactPlan['title'] = contactPlan['title'] + remote;
+          contactPlan['bold'] = true;
+          contactPlan['total'] = 1;
 
           console.log("New Contact");
-          console.log(contact)
 
-
-          this.Contacts.unshift(contact);
+          this.Contacts.unshift(contactPlan);
           this.TotalContacts = this.TotalContacts + 1;
-          var plus = (messengerEvent['remote'] === true) ? 0 : 1;
-          this.TotalMessages = this.TotalMessages + plus;
+          //var plus = (messengerEvent['remote'] === true) ? 0 : 1;
+          //this.TotalMessages = this.TotalMessages + plus;
           this.MessengerOpened = true;
         }
         else if (messengerEvent.task === 'updatecontact') {
@@ -136,23 +133,23 @@ export class MessengerCore extends SocketEcho {
 
   public openChatWindow(index, title, recieverId, chatId) {
 
-    this.Windows.messagesLoaded = false;
+    this.WindowManager.messagesLoaded = false;
 
-    if (this.Windows.Manager[0]['open'] == false) {
+    if (this.WindowManager.Window[0]['open'] == false) {
 
-      this.Windows.Manager[0].open = this.Windows.Manager[0].loaded = true;
-      this.Windows.Manager[0].title = title;
-      this.Windows.Manager[0].recieverId = recieverId;
+      this.WindowManager.Window[0].open = this.WindowManager.Window[0].loaded = true;
+      this.WindowManager.Window[0].title = title;
+      this.WindowManager.Window[0].recieverId = recieverId;
 
       //const i = this.Contacts.findIndex(i => i.id === chatId)
-      this.Windows.Manager[0].accepted = this.Contacts[index].accepted;
+      this.WindowManager.Window[0].accepted = this.Contacts[index].accepted;
 
       this.TotalMessages = (this.TotalMessages) - (this.Contacts[index].unread);
       this.Contacts[index].unread = 0;
 
 
       this.communicationListener(this.account.uid, recieverId, chatId);
-      this.Windows.getChatData(this.account.uid, recieverId, chatId, 0, null);
+      this.WindowManager.getChatData(this.account.uid, recieverId, chatId, 0, null);
       //this.ChatWindows.scrollDownInChatBody(this.chatBody);
 
       console.log("Initiate connection: " + chatId);
@@ -160,20 +157,20 @@ export class MessengerCore extends SocketEcho {
     }
     else {
 
-      this.Windows.close(index);
+      this.WindowManager.close(index);
 
-      this.Windows.Manager[0].open = true;
-      this.Windows.Manager[0].title = title;
-      this.Windows.Manager[0].contactId = recieverId;
+      this.WindowManager.Window[0].open = true;
+      this.WindowManager.Window[0].title = title;
+      this.WindowManager.Window[0].contactId = recieverId;
 
       //const i = this.Contacts.findIndex(i => i.id === chatId)
-      this.Windows.Manager[0].accepted = this.Contacts[index].accepted;
+      this.WindowManager.Window[0].accepted = this.Contacts[index].accepted;
 
       this.TotalMessages = (this.TotalMessages) - (this.Contacts[index].unread);
       this.Contacts[index].unread = 0;
 
       this.communicationListener(this.account.uid, recieverId, chatId);
-      this.Windows.getChatData(this.account.uid, recieverId, chatId, 0, null);
+      this.WindowManager.getChatData(this.account.uid, recieverId, chatId, 0, null);
       //this.ChatWindows.scrollDownInChatBody(this.chatBody);
 
       console.log("Initiate/Close connection: " + chatId);
@@ -190,9 +187,9 @@ export class MessengerCore extends SocketEcho {
     var data = {
       type: 3,
       text: Text,
-      chatId: this.Windows.Manager[index]['chatId'],
+      chatId: this.WindowManager.Window[index]['chatId'],
       senderId: this.account.uid,
-      recieverId: this.Windows.Manager[index]['contactId']
+      recieverId: this.WindowManager.Window[index]['contactId']
 
     }
     console.log(this.Contacts[index]);
@@ -201,7 +198,7 @@ export class MessengerCore extends SocketEcho {
 
       console.log(response);
       this.messageText.nativeElement.value = '';
-      this.Windows.scrollDownInChatBody(this.chatBody);
+      this.WindowManager.scrollDownInChatBody(this.chatBody);
 
     });
 

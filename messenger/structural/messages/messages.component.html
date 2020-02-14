@@ -1,4 +1,4 @@
-<div class="text-center" *ngIf="!this.ChatWindows.messagesLoaded">
+<div class="text-center" *ngIf="!this.Window[0].loaded">
   <br>
   <div class="row">
     <div class="col-md-12"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
@@ -7,8 +7,8 @@
       <div class="col-md-12"><h4>Connecting</h4></div>
     </div>
 </div>
-<div id="chatBody" #chatBody *ngIf="this.ChatWindows.messagesLoaded">
-    <div  *ngFor="let x of this.ChatWindows.Manager[0]['messages']; let i=index">
+<div id="chatBody" #chatBody *ngIf="this.Window[0].loaded">
+    <div  *ngFor="let x of this.Window[0]['messages']; let i=index">
 
         <!-- Type 0 Text Message START -->
         <div *ngIf="x.currentUser && x.type == 0" class="row textItem currentUserText">
@@ -36,19 +36,19 @@
             <i class="fa fa-exclamation-circle fa-2x textItem"></i>
           </div>
           <div class="col-md-11">
-            <p class="textItem text-center">{{x.text}}</p>
+            <p class="textItem text-center">{{getRequestMessageText(x.type)}}</p>
           </div>
         </div>
         <div *ngIf="x.type == 1 && x.memberType == 'Seller' && x.accepted == 2" class="row">
           <div class="col-md-6">
             <hr>
-            <a class="btn btn-primary button-radius" (click)="postRequestDesicion(i, x.recieverId, 1, this.ChatWindows.Manager[i]['chatId'])"><i
+            <a class="btn btn-primary button-radius" (click)="postRequestDesicion(i, x.recieverId, 1, this.Window[i]['chatId'])"><i
                 class="fa fa-check" aria-hidden="true"></i> Godta</a>
             <br>
           </div>
           <div class="col-md-6">
             <hr>
-            <a class="btn btn-primary button-radius" (click)="postRequestDesicion(i, x.recieverId, 0, this.ChatWindows.Manager[i]['chatId'])"><i
+            <a class="btn btn-primary button-radius" (click)="postRequestDesicion(i, x.recieverId, 0, this.Window[i]['chatId'])"><i
                 class="fa fa-times" aria-hidden="true"></i> Avslå</a>
             <br>
           </div>
@@ -57,6 +57,6 @@
       </div>
     
 </div>
-<div *ngIf="this.ChatWindows.messagesLoaded">
+<div *ngIf="this.messagesLoaded">
    
 </div>

@@ -23,19 +23,13 @@ import { ChatWindows } from './core/chat-windows.service';
 @Injectable()
 export class MessengerComponent extends MessengerCore implements OnInit {
 
-
-
-
-
-
-
   constructor(public api: RestfulAPI,
     public SocketEcho: SocketEcho,
     public auth: AuthService,
     public account: SharingService,
-    public Windows: ChatWindows,
+    public WindowManager: ChatWindows,
     public events: Events) {
-    super(api, SocketEcho, auth, account, Windows, events);
+    super(api, SocketEcho, auth, account, WindowManager, events);
   }
 
   ngOnInit() {
@@ -89,7 +83,7 @@ export class MessengerComponent extends MessengerCore implements OnInit {
   public getChatWindow(index = 0) {
 
     try {
-      return this.Windows.Manager[index].open;
+      return this.WindowManager.Window[index].open;
     } catch (error) {
       return false;
     }

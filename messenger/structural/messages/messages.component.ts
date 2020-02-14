@@ -1,37 +1,54 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ChatWindows } from '../../core/chat-windows.service';
 import { Events } from '../../core/events.service';
-
+import { RestfulAPI } from '../../../../../providers/services/RestfulAPI.service';
+import { SharingService } from '../../../../../providers/guards/sharing.service';
+import { SocketEcho } from '../../../../../providers/services/SocketEcho.service'
 
 @Component({
   selector: 'app-messages',
   templateUrl: './messages.component.html',
   styleUrls: ['./messages.component.css']
 })
-export class MessagesComponent implements OnInit {
+export class MessagesComponent extends ChatWindows implements OnInit {
 
   @ViewChild("Messages", { read: ElementRef, static: false }) private Messages: ElementRef;
   @ViewChild("chatBody", { read: ElementRef, static: false }) private chatBody: ElementRef;
 
+  private initialMessageClient = "You're request to trainers has been sent";
+  private initialMessageSeller = "You have got an request from a new client, please accept or reject the offer";
 
-  constructor(public ChatWindows: ChatWindows, private events: Events) {
 
+  constructor(private events: Events, api:RestfulAPI, account:SharingService, socket:SocketEcho) {
+    super(api, account, socket);
+    
     this.events.Manager.subscribe(
       (data: any) => {
 
         if (data.task === 'requestmessage') {
 
-          this.ChatWindows.Manager[0]['messages'][data.index].accepted = data.desicion;
-          this.ChatWindows.Manager[0]['messages'][data.index].text = 'Kontakten er etablert';
-
+          this.Window[0]['messages'][data.index].accepted = data.desicion;
+          this.Window[0]['messages'][data.index].text = 'Kontakten er etablert';
 
           this.events.emitUpdateContact('Forespørsel godkjent', data.chatId);
 
-
         }
 
-
       });
+  }
+
+  public getRequestMessageText(type){
+
+      switch (type) {
+        case 1:
+          const message = (this.account.memberType === 'Client') ? this.initialMessageClient : this.initialMessageSeller;
+          return message;
+      
+        default:
+          break;
+      }
+
+
   }
 
   ngOnInit() {
@@ -50,12 +67,10 @@ export class MessagesComponent implements OnInit {
 
   postRequestDesicion(index, recieverId, req, chatId) {
 
-
     var initial = (index === 0) ? true : false;
-
     const data = { type: 2, index: index, chatId: chatId, recieverId: recieverId, desicion: req, initial: initial };
-
-    this.ChatWindows.api.post('communication', data, 'secure').subscribe(response => {
+    
+    this.api.post('communication', data, 'secure').subscribe(response => {
 
       console.log('desicion', data);
       console.log('res', response);
@@ -64,7 +79,7 @@ export class MessagesComponent implements OnInit {
 
     });
 
-    this.ChatWindows.Manager[0].accepted = req;
+    this.Window[0].accepted = req;
 
   }
 

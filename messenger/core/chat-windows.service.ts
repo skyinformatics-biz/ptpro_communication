@@ -11,7 +11,7 @@ import { SocketEcho } from '../../../../providers/services/SocketEcho.service'
 export class ChatWindows {
 
   // Chat window manager
-  public Manager: Array<any> = [];
+  public Window: Array<any> = [];
 
   //
   public messagesLoaded = false;
@@ -19,9 +19,9 @@ export class ChatWindows {
   constructor(public api: RestfulAPI, public account: SharingService, public SocketEcho:SocketEcho) {
 
     // Windows allow 3
-    this.Manager[0] = { 'chatId': null, 'title': null, 'open': false, 'loaded': false, 'recieverId': null, 'messages': [], accepted: 2 };
-    this.Manager[1] = { 'chatId': null, 'title': null, 'open': false, 'loaded': false, 'recieverId': null, 'messages': [], accepted: 2 };
-    this.Manager[2] = { 'chatId': null, 'title': null, 'open': false, 'loaded': false, 'recieverId': null, 'messages': [], accepted: 2 };
+    this.Window[0] = { 'chatId': null, 'title': null, 'open': false, 'loaded': true, 'recieverId': null, 'messages': [], accepted: 2 };
+    this.Window[1] = { 'chatId': null, 'title': null, 'open': false, 'loaded': false, 'recieverId': null, 'messages': [], accepted: 2 };
+    this.Window[2] = { 'chatId': null, 'title': null, 'open': false, 'loaded': false, 'recieverId': null, 'messages': [], accepted: 2 };
 
   }
 
@@ -31,22 +31,22 @@ export class ChatWindows {
     // put user chat data in the chat windows
     this.api.post('communication', data, 'secure').subscribe(response => {
 
-      var messages = this.Manager[0]['messages'] = [];
-      this.Manager[0]['chatId'] = chatId;
+      var messages = this.Window[0]['messages'] = [];
+      this.Window[0]['chatId'] = chatId;
 
       response.forEach((element, index) => {
 
         if (element.senderId != this.account.uid) {
           var currentUser = false;
-          this.Manager[0]['messages'][index] = { 'currentUser': currentUser, 'recieverId': element.recieverId, 'text': element.text, 'type': element.type, 'memberType': element.memberType, 'accepted': element.accepted };
+          this.Window[0]['messages'][index] = { 'currentUser': currentUser, 'recieverId': element.recieverId, 'text': element.text, 'type': element.type, 'memberType': element.memberType, 'accepted': element.accepted };
         }
         else {
           var currentUser = true;
-          this.Manager[0]['messages'][index] = { 'currentUser': currentUser, 'recieverId': element.recieverId, 'text': element.text, 'type': element.type, 'memberType': element.memberType, 'accepted': element.accepted };
+          this.Window[0]['messages'][index] = { 'currentUser': currentUser, 'recieverId': element.recieverId, 'text': element.text, 'type': element.type, 'memberType': element.memberType, 'accepted': element.accepted };
         }
       });
 
-      this.messagesLoaded = true;
+      this.Window[0].loaded = true;
 
 
     });
@@ -56,11 +56,11 @@ export class ChatWindows {
 
     this.messagesLoaded = false;
 
-    this.Manager[0].open = false;
+    this.Window[0].open = false;
     //this.Contacts[index]['messages'] = null;
-    this.SocketEcho.CloseConnection(this.Manager[index].chatId);
+    this.SocketEcho.CloseConnection(this.Window[index].chatId);
 
-    console.log("Connection closed", this.Manager);
+    console.log("Connection closed", this.Window);
   }
 
 
