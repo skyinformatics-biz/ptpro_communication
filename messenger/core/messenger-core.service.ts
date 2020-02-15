@@ -82,7 +82,7 @@ export class MessengerCore extends SocketEcho {
   public remoteCommunicationListener(senderId, recieverId, Channel) {
 
     // Communication channel exist of, sender, reciever and channel ids.
-    window.Echo.private('Communication.' + senderId + '-' + recieverId + '.' + Channel)
+    window.Echo.private('COM.' + senderId + '-' + recieverId + '.' + Channel)
       .listen('.Message.created', (data) => {
 
         console.log('MSG', data);
