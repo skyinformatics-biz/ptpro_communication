@@ -50,6 +50,8 @@ export class MessengerCore extends SocketEcho {
     window.Echo.private('Notification.User.' + this.account.uid)
       .listen('.Notification.response', (data) => {
 
+        console.log("recieved", data);
+
         /* Updates unread messages for contacts */
         if (data.type === 0) {
           this.Notifications = data;
