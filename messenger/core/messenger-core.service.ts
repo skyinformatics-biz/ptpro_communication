@@ -45,38 +45,30 @@ export class MessengerCore extends SocketEcho {
     super();
   }
 
+  /**
+   *  Listens to remote socket notification events
+   */
   public remoteNotificationListener() {
 
     window.Echo.private('Notification.User.' + this.account.uid)
-      .listen('.Notification.response', (data) => {
+      .listen('.Notification.response', (response) => {
 
-        console.log("recieved", data);
+        /* Type 0 - Update Contact list and unread messages */
+        if (response.type === 0) {
 
-        /* Updates unread messages for contacts */
-        if (data.type === 0) {
-          this.Notifications = data;
-          this.TotalMessages = this.Notifications['data']['total'];
+          this.TotalMessages = response['data']['total_unread'];
+          this.Contacts = response['data']['contacts'];
 
-          if (data.request[0] == true) {
-            this.events.emitNewContact(data.request[1], true);
-          }
 
         }
-        /* Updates option/type request messages */
-        else if (data.type === 1) {
-          try {
-            this.Chat.Window[0]['messages'][data.index].accepted = data.desicion;
-            this.Chat.Window[0]['messages'][data.index].text = data.msg;
-            this.Chat.Window[0].accepted = data.desicion;
-
-          } catch (error) {
-            console.log(error)
-          }
-        }
-        else if (data.type === 3) {
+        /* Not set */
+        else if (response.type === 1) {
 
         }
-        console.log('Notification: ', data);
+        else if (response.type === 2) {
+
+        }
+        console.log('Notification: ', response);
       });
 
   }
@@ -86,7 +78,7 @@ export class MessengerCore extends SocketEcho {
 
     // Communication channel exist of, sender, reciever and channel ids.
     window.Echo.private('COM.' + senderId + '-' + recieverId + '.' + Channel)
-      .listen('.Message.created', (data) => {
+      .listen('.message.created', (data) => {
 
 
         if (this.account.uid == data.senderId) {
@@ -98,8 +90,15 @@ export class MessengerCore extends SocketEcho {
 
 
       })
-      .listen('.RequestMessage.created', (data) => {
-        console.log('Request Message recieved');
+      .listen('.requestMessage.response', (response) => {
+        try {
+          this.Chat.Window[0]['messages'][response.index].accepted = response.desicion;
+          this.Chat.Window[0]['messages'][response.index].text = response.msg;
+          this.Chat.Window[0].accepted = response.desicion;
+
+        } catch (error) {
+          console.log(error)
+        }
       })
 
   }
