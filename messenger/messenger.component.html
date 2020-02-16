@@ -18,18 +18,18 @@
       <!-- START: Contact information - row -->
       <div class="row contact-item" *ngFor="let session of Contacts; let i=index"
         (click)="openChatWindow(i, session.firstname + ' ' + session.lastname, session.recieverId, session.requestId)">
-        <!-- START: Contact information - PART: Picture - coluwn  -->
+        <!-- START: Contact information - PART: Picture + coluwn  -->
         <div class="col-md-3 col-sm-3 col-xs-3 text-center">
           <img width="40" height="40" class="img" src="https://fakeimg.pl/50/" />
         </div>
-        <!-- END: Contact information - PART: Picture - coluwn -->
+        <!-- END: Contact information - PART: Picture + coluwn -->
         <div class="col-md-9 col-sm-9 col-xs-9">
           <!-- START: Salesplan title/icon row -->
           <div class="row">
             <div class="col-md-12">
               <h4 [ngClass]="{ 'font-weight-bold': session.bold}" style="margin:0">
                 <i class="fa" [ngClass]="{
-                  'fa-envelope text-success': session.bold == true,
+                  'fa-envelope text-success': session.bold === true,
                   'fa-clock-o text-warning':session.accepted === 2,
                   'fa-check text-success':session.accepted === 1,
                   'fa-times text-danger':session.accepted === 0
@@ -43,8 +43,7 @@
             <div class="col-md-12 col-sm-12 col-xs-12">
               <h4 style="margin:0">
                 <i class="fa fa-user" aria-hidden="true"></i>
-                {{session.firstname}} {{session.lastname}}
-                ({{session.unread}})</h4>
+                {{session.firstname}} {{session.lastname}} ({{session.unread}})</h4>
             </div>
           </div>
           <!-- END: Contact name and unread messages - row -->
@@ -58,7 +57,7 @@
       <h2 style="margin:0; color:rgba(255, 255, 255, 0.973);"> <span class="fa fa-envelope"></span> Meldinger ({{this.TotalMessages}})</h2>
       <h4 style="margin:0">Aktive sessjoner ({{this.TotalContacts}})</h4> <span class="fa fa-setting"></span>
     </Button>
-    <div *ngIf="myMessengerOpened">
+    <div *ngIf="MessengerOpened">
       <table class="messenger-controller">
         <tr>
           <td>

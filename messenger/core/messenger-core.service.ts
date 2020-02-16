@@ -81,13 +81,13 @@ export class MessengerCore extends SocketEcho {
 
   }
 
+  /** Communication as chatting chhannel */
   public remoteCommunicationListener(senderId, recieverId, Channel) {
 
     // Communication channel exist of, sender, reciever and channel ids.
     window.Echo.private('COM.' + senderId + '-' + recieverId + '.' + Channel)
       .listen('.Message.created', (data) => {
 
-        console.log('MSG', data);
 
         if (this.account.uid == data.senderId) {
           this.Chat.Window[0]['messages'].push({ 'currentUser': true, 'text': data.text, 'senderId': data.senderId, 'recieverId': data.recieverId, 'type': data.type });

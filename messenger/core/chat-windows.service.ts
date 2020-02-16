@@ -64,9 +64,11 @@ export class ChatWindows {
 
   public close(index) {
 
-    this.messagesLoaded = false;
+    //this.messagesLoaded = false;
 
     this.Window[0].open = false;
+    this.Window[0].loaded = false;
+    this.Window[0].messages = null;
     //this.Contacts[index]['messages'] = null;
     this.SocketEcho.CloseConnection(this.Window[index].chatId);
 
