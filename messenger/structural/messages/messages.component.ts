@@ -26,12 +26,12 @@ export class MessagesComponent implements OnInit {
     this.events.Manager.subscribe(
       (data: any) => {
 
-        if (data.task === 'requestmessage') {
+        if (data.task === 'requestMessage') {
 
           this.Chat.Window[0]['messages'][data.index].accepted = data.desicion;
           this.Chat.Window[0]['messages'][data.index].text = 'Kontakten er etablert';
 
-          this.events.emitUpdateContact('Forespørsel godkjent', data.chatId);
+          this.events.updateContact('Request has been accepted.', data.chatId);
 
         }
 
@@ -46,7 +46,7 @@ export class MessagesComponent implements OnInit {
       case 1:
         var initialMessage = this.Chat.Window[0].accepted;
         if (initialMessage == 2) {
-          var message = this.Chat.Window[0]['messages'][0] = (this.account.memberType === 'Client') ? this.initialMessageClient : this.initialMessageSeller;
+          var message = this.Chat.Window[0]['messages'][0].text = (this.account.memberType === 'Client') ? this.initialMessageClient : this.initialMessageSeller;
         }
         else if (initialMessage == 1) {
           var message = "Contact has been etablished."
@@ -75,21 +75,21 @@ export class MessagesComponent implements OnInit {
     }
   }
 
-  postRequestDesicion(index, chatId, recieverId, salesPlanId, request_option) {
+  postRequestDesicion(index, chatId, recieverId, salesPlanId, value) {
 
     var initialMessage = (index === 0) ? true : false;
-    const data = { type: 2, index: index, chatId: chatId, recieverId: recieverId, desicion: request_option, initial: initialMessage };
+    const data = { type: 2, index: index, chatId: chatId, recieverId: recieverId, desicion: value, initial: initialMessage };
 
     this.api.post('communication', data, 'secure').subscribe(response => {
 
       console.log('desicion', data);
       console.log('res', response);
 
-      this.events.emitRequestDesicion(request_option, index, chatId);
+      this.events.requestDesicion(value, index, chatId);
 
     });
 
-    this.Chat.Window[0].accepted = request_option;
+    this.Chat.Window[0].accepted = value;
 
   }
 

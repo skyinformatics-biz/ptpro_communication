@@ -107,7 +107,7 @@ export class MessengerCore extends SocketEcho {
     this.events.Manager.subscribe(
       (messengerEvent: any) => {
 
-        if (messengerEvent.task === 'newcontact') {
+        if (messengerEvent.task === 'newContact') {
           const contactPlan = messengerEvent['data'];
           var remote = (messengerEvent['remote'] === true) ? ' mottat' : ' sendt';
           contactPlan['title'] = contactPlan['title'] + remote;
@@ -120,7 +120,7 @@ export class MessengerCore extends SocketEcho {
           this.TotalContacts = this.TotalContacts + 1;
           this.MessengerOpened = true;
         }
-        else if (messengerEvent.task === 'updatecontact') {
+        else if (messengerEvent.task === 'updateContact') {
           var i = this.Contacts.findIndex(i => i.id === messengerEvent.chatId);
           this.Contacts[i].title = messengerEvent.title;
           this.Contacts[i].bold = false;

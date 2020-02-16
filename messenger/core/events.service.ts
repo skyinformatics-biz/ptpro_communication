@@ -11,12 +11,12 @@ export class Events {
     private MessengerEvents:Array<any> = [];
 
     constructor(){
-        this.MessengerEvents[0] = {task: 'newcontact', completion: false, data:[], 'remote':false}; 
-        this.MessengerEvents[1] = {task: 'requestmessage', accepted: 2, data:[]}; 
-        this.MessengerEvents[2] = {task: 'updatecontact', data:[]}; 
+        this.MessengerEvents[0] = {task: 'newContact', completion: false, data:[], 'remote':false}; 
+        this.MessengerEvents[1] = {task: 'requestMessage', accepted: 2, data:[]}; 
+        this.MessengerEvents[2] = {task: 'updateContact', data:[]}; 
     }
 
-    public emitNewContact(data, remote=false){
+    public newContact(data, remote=false){
         this.MessengerEvents[0]['completion'] = true;
         this.MessengerEvents[0]['data'] = data;
         this.MessengerEvents[0]['remote'] = remote;
@@ -25,7 +25,7 @@ export class Events {
     }
 
 
-    public emitRequestDesicion(desicion, index, chatId, data=[]){
+    public requestDesicion(desicion, index, chatId, data=[]){
         this.MessengerEvents[1]['desicion'] = desicion;
         this.MessengerEvents[1]['index'] = index;
         this.MessengerEvents[1]['chatId'] = chatId;
@@ -35,7 +35,7 @@ export class Events {
     }
 
     
-    public emitUpdateContact(title, chatId){
+    public updateContact(title, chatId){
 
         this.MessengerEvents[2]['title'] = title; 
         this.MessengerEvents[2]['chatId'] = chatId; 
