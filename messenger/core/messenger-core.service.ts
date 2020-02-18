@@ -103,26 +103,35 @@ export class MessengerCore extends SocketEcho {
 
   }
 
-  public localMessengerEventsListener() {
+  public localEventsListener() {
     this.events.Manager.subscribe(
-      (messengerEvent: any) => {
+      (EventResponse: any) => {
 
-        if (messengerEvent.task === 'newContact') {
-          const contactPlan = messengerEvent['data'];
-          var remote = (messengerEvent['remote'] === true) ? ' mottat' : ' sendt';
-          contactPlan['title'] = contactPlan['title'] + remote;
-          contactPlan['bold'] = true;
-          contactPlan['unread'] = 1;
+        if (EventResponse.task === 'newContact') {
+          // Local eventResponse for NewContact
+          const responseData = EventResponse['data'];
+          // Response data contact
+          const contact = responseData['contact'];
 
-          console.log("New Contact");
+          // Add more params to the response Contact
+          var remote = (EventResponse['remote'] === true) ? ' mottat' : ' sendt';
+          contact.title = contact.title + remote;
+          contact.bold = true;
+          contact.unread = 1;
+          contact.accepted = 2;
 
-          this.Contacts.unshift(contactPlan);
+          // response token equal chatId
+          console.log("responseUrl",responseData.url);
+          contact.requestId = responseData.url;
+
+          // Place contact as first element
+          this.Contacts.unshift(responseData['contact']);
           this.TotalContacts = this.TotalContacts + 1;
           this.MessengerOpened = true;
         }
-        else if (messengerEvent.task === 'updateContact') {
-          var i = this.Contacts.findIndex(i => i.id === messengerEvent.chatId);
-          this.Contacts[i].title = messengerEvent.title;
+        else if (EventResponse.task === 'updateContact') {
+          var i = this.Contacts.findIndex(i => i.id === EventResponse.chatId);
+          this.Contacts[i].title = EventResponse.title;
           this.Contacts[i].bold = false;
 
           console.log('context index', i);

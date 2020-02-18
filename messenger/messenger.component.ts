@@ -57,7 +57,7 @@ export class MessengerComponent extends MessengerCore implements OnInit {
       });
 
       // 2. Listen for notification
-      this.localMessengerEventsListener();
+      this.localEventsListener();
       this.remoteNotificationListener();
       
 

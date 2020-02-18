@@ -26,13 +26,17 @@ export class ChatWindows {
   }
 
   public getCommunicationData(userId, recieverId, chatId, reset = 0, content = null) {
-    var data = { type: 1, chatId: chatId, userId: userId, contactId: recieverId, data: content };
+    var data = { type: 1, 'userId': userId, 'contactId': recieverId, 'chatId': chatId, 'data': content };
 
     // put user chat data in the chat windows
     this.api.post('communication', data, 'secure').subscribe(response => {
 
+      console.log("response: ", response);
+
       this.Window[0]['messages'] = response;
       this.Window[0]['chatId'] = chatId;
+      this.Window[0]['recieverId'] = recieverId;
+
 
       response.forEach((user, index) => {
 
@@ -51,12 +55,12 @@ export class ChatWindows {
         }
       });
 
-      this.Window[0].salesPlanId = response[0].salesPlanId;
+      this.Window[0].salesPlanId = response.salesPlanId;
       this.Window[0].loaded = true;
 
 
 
-      console.log("response", response);
+     
 
 
     });
@@ -70,7 +74,7 @@ export class ChatWindows {
     this.Window[0].loaded = false;
     this.Window[0].messages = null;
     //this.Contacts[index]['messages'] = null;
-    this.SocketEcho.CloseConnection(this.Window[index].chatId);
+    this.SocketEcho.CloseConnection(this.Window[0].chatId);
 
     console.log("Connection closed", this.Window);
   }
