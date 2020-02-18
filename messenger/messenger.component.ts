@@ -81,15 +81,7 @@ export class MessengerComponent extends MessengerCore implements OnInit {
   }
 
 
-  public getChatWindow(index = 0) {
 
-    try {
-      return this.Chat.Window[index].open;
-    } catch (error) {
-      return false;
-    }
-
-  }
 
   private toggleMessenger() {
     if (this.MessengerOpened)
@@ -98,9 +90,6 @@ export class MessengerComponent extends MessengerCore implements OnInit {
       this.MessengerOpened = true;
   }
 
-  private toggleChatWindow(index) {
-
-  }
 
 
 

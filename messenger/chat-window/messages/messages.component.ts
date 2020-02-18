@@ -18,7 +18,10 @@ export class MessagesComponent implements OnInit {
   private initialMessageClient = "Your request to the trainer has been sent. Please wait for response for their response.";
   private initialMessageSeller = "You have got an request from a new client, please accept or reject the offer.";
 
-  public messagesLoaded = true;
+
+  ngOnInit() {
+    this.scrollDownInChat()
+  }
 
   constructor(private Chat: ChatWindows, private events: Events, private api: RestfulAPI, private account: SharingService, private socket: SocketEcho) {
     //super(api, account, socket);
@@ -31,7 +34,7 @@ export class MessagesComponent implements OnInit {
           this.Chat.Window[0]['messages'][data.index].accepted = data.desicion;
           this.Chat.Window[0]['messages'][data.index].text = 'Kontakten er etablert';
 
-          this.events.updateContact('Request has been accepted.', data.chatId);
+
 
         }
 
@@ -61,9 +64,28 @@ export class MessagesComponent implements OnInit {
 
   }
 
-  ngOnInit() {
-    this.scrollDownInChat()
+  postRequestDesicion(index, chatId, message, value, salesPlanId=null) {
+
+    var initialMessage = (index === 0) ? true : false;
+    var responseId = (this.account.memberType === 'Seller') ? message.senderId : message.recieverId;
+
+    const data = { 'type': 2, 'index': index, 'chatId': chatId, 'responseId': responseId, 'decision': value, 'initial': initialMessage };
+
+    this.api.post('communication', data, 'secure').subscribe(response => {
+
+      console.log('desicion', data);
+      console.log('res', response);
+
+      this.events.requestDesicion(value, index, chatId);
+      this.events.updateContact(index, value);
+
+    });
+
+    this.Chat.Window[0].accepted = value;
+
   }
+
+
 
   scrollDownInChat() {
     try {
@@ -75,22 +97,6 @@ export class MessagesComponent implements OnInit {
     }
   }
 
-  postRequestDesicion(index, chatId, recieverId, salesPlanId, value) {
 
-    var initialMessage = (index === 0) ? true : false;
-    const data = { type: 2, index: index, chatId: chatId, recieverId: recieverId, desicion: value, initial: initialMessage };
-
-    this.api.post('communication', data, 'secure').subscribe(response => {
-
-      console.log('desicion', data);
-      console.log('res', response);
-
-      this.events.requestDesicion(value, index, chatId);
-
-    });
-
-    this.Chat.Window[0].accepted = value;
-
-  }
 
 }

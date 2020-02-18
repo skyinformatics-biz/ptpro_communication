@@ -11,6 +11,7 @@ export class Events {
     private MessengerEvents:Array<any> = [];
 
     constructor(){
+        /** Total amount of messenger events */
         this.MessengerEvents[0] = {task: 'newContact', completion: false, data:[], 'remote':false}; 
         this.MessengerEvents[1] = {task: 'requestMessage', accepted: 2, data:[]}; 
         this.MessengerEvents[2] = {task: 'updateContact', data:[]}; 
@@ -25,8 +26,8 @@ export class Events {
     }
 
 
-    public requestDesicion(desicion, index, chatId, data=[]){
-        this.MessengerEvents[1]['desicion'] = desicion;
+    public requestDesicion(decision, index, chatId, data=[]){
+        this.MessengerEvents[1]['decision'] = decision;
         this.MessengerEvents[1]['index'] = index;
         this.MessengerEvents[1]['chatId'] = chatId;
         this.MessengerEvents[1]['data'] = data;
@@ -35,12 +36,10 @@ export class Events {
     }
 
     
-    public updateContact(title, chatId){
+    public updateContact(index, value){
 
-        this.MessengerEvents[2]['title'] = title; 
-        this.MessengerEvents[2]['chatId'] = chatId; 
-
-
+        this.MessengerEvents[2]['index'] = index; 
+        this.MessengerEvents[2]['accepted'] = value; 
 
         this.Manager.emit(this.MessengerEvents[2]);
     }

@@ -3,7 +3,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ChatWindows } from './messenger/core/chat-windows.service';
 import { Events } from './messenger/core/events.service';
-import { MessagesComponent } from './messenger/structural/messages/messages.component';
+import { MessagesComponent } from './messenger/chat-window/messages/messages.component';
+import { ChatWindowComponent } from './messenger/chat-window/chat-window.component';
 import { MessengerComponent } from './messenger/messenger.component';
 import { MessengerCore } from './messenger/core/messenger-core.service'
 
@@ -11,6 +12,7 @@ import { MessengerCore } from './messenger/core/messenger-core.service'
 @NgModule({
   declarations: [
     MessengerComponent,
+    ChatWindowComponent,
     MessagesComponent,
   ],
   imports: [

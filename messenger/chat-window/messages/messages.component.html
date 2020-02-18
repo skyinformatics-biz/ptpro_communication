@@ -1,0 +1,67 @@
+<div class="text-center" *ngIf="!this.Chat.Window[0].loaded">
+  <br>
+  <div class="row">
+    <div class="col-md-12"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <h4>Connecting</h4>
+    </div>
+  </div>
+</div>
+<div id="chatBody" #chatBody *ngIf="this.Chat.Window[0].loaded">
+  <div *ngFor="let message of this.Chat.Window[0]['messages']; let i=index">
+    <!-- Type 0 Text Message START -->
+    <div *ngIf="message.currentUser && message.type == 0" class="row textItem currentUserText">
+      <div class="col-md-11">
+        <p class="pull-right textItem">{{message.text}}</p>
+      </div>
+      <div class="col-md-1" style="padding:0">
+        <img *ngIf="message.type != 1" class="pull-right textItem img img-rounded" width="25" height="25"
+          src="https://fakeimg.pl/50/" />
+      </div>
+    </div>
+    <div *ngIf="!message.currentUser && message.type == 0" class="row textItem remoteUserText">
+      <div class="col-md-1" style="padding:0">
+        <img *ngIf="message.type == 0" class="textItem img img-rounded" width="25" height="25"
+          src="https://fakeimg.pl/50/" />
+      </div>
+      <div class="col-md-11">
+        <p class="textItem">{{message.text}}</p>
+      </div>
+    </div>
+    <!-- Type 0 Text Message END -->
+    <!-- Type 1 Message START  -->
+    <div *ngIf="message.type == 1" class="row textItem requestMessage-accepted">
+      <div class="col-md-1" style="padding:0">
+        <i class="fa fa-exclamation-circle fa-2x textItem"></i>
+      </div>
+      <div class="col-md-11">
+        <p class="textItem text-center">{{getRequestMessageText(index, message.type)}}</p>
+      </div>
+    </div>
+    <div *ngIf="message.type == 1 && message.accepted == 2 && this.account.memberType == 'Seller'" class="row">
+      <div class="col-md-6">
+        <br>
+        <a class="btn btn-primary button-radius"
+          (click)="postRequestDesicion(i, this.Chat.Window[i]['chatId'], message, 1)"><i class="fa fa-check"
+            aria-hidden="true"></i> Godta</a>
+        <hr>
+        <br>
+      </div>
+      <div class="col-md-6">
+        <br>
+        <a class="btn btn-primary button-radius"
+          (click)="postRequestDesicion(i, this.Chat.Window[i]['chatId'], message, 0)"><i class="fa fa-times"
+            aria-hidden="true"></i> Avslå</a>
+        <hr>
+        <br>
+      </div>
+    </div>
+    <!-- Type 1 Message END  -->
+  </div>
+
+</div>
+<div *ngIf="this.messagesLoaded">
+
+</div>

@@ -121,7 +121,6 @@ export class MessengerCore extends SocketEcho {
           contact.accepted = 2;
 
           // response token equal chatId
-          console.log("responseUrl",responseData.url);
           contact.requestId = responseData.url;
 
           // Place contact as first element
@@ -130,11 +129,14 @@ export class MessengerCore extends SocketEcho {
           this.MessengerOpened = true;
         }
         else if (EventResponse.task === 'updateContact') {
-          var i = this.Contacts.findIndex(i => i.id === EventResponse.chatId);
-          this.Contacts[i].title = EventResponse.title;
-          this.Contacts[i].bold = false;
 
-          console.log('context index', i);
+          console.log('context index', EventResponse);
+
+          //var i = this.Contacts.findIndex(i => i.id === EventResponse.chatId);
+          this.Contacts[EventResponse.index].accepted = EventResponse.accepted;
+          this.Contacts[EventResponse.index].bold = false;
+
+        
         }
 
       });
