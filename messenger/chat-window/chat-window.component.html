@@ -15,8 +15,8 @@
         </div>
       </div>
     </div>
-    <div class="chat-body">
-      <app-messages #chatBody></app-messages>
+    <div class="chat-body" #chatBody>
+      <app-messages ></app-messages>
     </div>
     <div *ngIf="this.Chat.Window[0].accepted == 1">
       <div class="form-group border-top" style="visibility:hidden"

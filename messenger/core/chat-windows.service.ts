@@ -25,8 +25,8 @@ export class ChatWindows {
 
   }
 
-  public getCommunicationData(userId, recieverId, chatId, reset = 0, content = null) {
-    var data = { type: 1, 'userId': userId, 'contactId': recieverId, 'chatId': chatId, 'data': content };
+  public getCommunicationData(accountId, initiatorId, recieverId, chatId, reset = 0, content = null) {
+    var data = { type: 1, 'userId': accountId, 'contactId': recieverId, 'chatId': chatId, 'data': content };
 
     // put user chat data in the chat windows
     this.api.post('communication', data, 'secure').subscribe(response => {
@@ -35,7 +35,7 @@ export class ChatWindows {
 
       this.Window[0]['messages'] = response;
       this.Window[0]['chatId'] = chatId;
-      this.Window[0]['recieverId'] = recieverId;
+      this.Window[0]['recieverId'] = (this.account.uid == recieverId) ? initiatorId : recieverId;
 
 
       response.forEach((user, index) => {
@@ -81,13 +81,6 @@ export class ChatWindows {
 
   
 
-  scrollDownInChatBody(chatBody) {
-    try {
-      chatBody.nativeElement.lastChild.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'nearest' });
 
-    } catch (error) {
-      console.log(error);
-    }
-  }
 
 }

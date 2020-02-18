@@ -17,7 +17,7 @@
       <div #requestContact></div>
       <!-- START: Contact information - row -->
       <div class="row contact-item" *ngFor="let session of Contacts; let i=index"
-        (click)="openChatWindow(i, session.firstname + ' ' + session.lastname, session.recieverId, session.requestId)">
+        (click)="openChatWindow(i, session.firstname + ' ' + session.lastname, session.initiatorId, session.recieverId, session.requestId)">
         <!-- START: Contact information - PART: Picture + coluwn  -->
         <div class="col-md-3 col-sm-3 col-xs-3 text-center">
           <img width="40" height="40" class="img" src="https://fakeimg.pl/50/" />

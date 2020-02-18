@@ -36,9 +36,6 @@ export class MessengerComponent extends MessengerCore implements OnInit {
     this.initializeMessenger();
   }
 
-
-
-
   private initializeMessenger() {
     this.api.get('communication', 'secure').subscribe(response => {
 
@@ -46,8 +43,6 @@ export class MessengerComponent extends MessengerCore implements OnInit {
       this.Contacts = response['contacts'];
       this.TotalMessages = response['total_unread'];
       this.TotalContacts = this.Contacts.length;
-
-      console.log(this.Contacts);
 
       // 1. Finally initiate authentication and connection with socket server
       this.SocketEcho.initiateConnection(this.auth.Token());
@@ -61,15 +56,13 @@ export class MessengerComponent extends MessengerCore implements OnInit {
       this.remoteNotificationListener();
       
 
-      //console.log('myContacts', this.myMessengerContacts);
+      console.log('Contacts', this.Contacts);
 
       this.MessengerLoaded = true;
 
     });
 
   }
-
-
 
   emitSignal() {
 
@@ -80,17 +73,12 @@ export class MessengerComponent extends MessengerCore implements OnInit {
 
   }
 
-
-
-
-  private toggleMessenger() {
+  public toggleMessenger() {
     if (this.MessengerOpened)
       this.MessengerOpened = false
     else
       this.MessengerOpened = true;
   }
-
-
 
 
 }

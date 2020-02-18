@@ -32,9 +32,8 @@ export class MessengerCore extends SocketEcho {
   public TotalContacts: number = 0;
 
   // Native
-  @ViewChild('messageText', { read: ElementRef, static: false }) messageText: ElementRef;
   @ViewChild("requestContact", { read: ElementRef, static: false }) private requestContact: ElementRef;
-  @ViewChild("ChatBody", { read: ElementRef, static: false }) private chatBody: ElementRef;
+
 
   constructor(public api: RestfulAPI,
     public SocketEcho: SocketEcho,
@@ -142,7 +141,7 @@ export class MessengerCore extends SocketEcho {
       });
   }
 
-  public openChatWindow(index, title, recieverId, chatId) {
+  public openChatWindow(index, title, initiatorId, recieverId, chatId) {
 
     this.Chat.messagesLoaded = false;
 
@@ -160,7 +159,7 @@ export class MessengerCore extends SocketEcho {
 
 
       this.remoteCommunicationListener(this.account.uid, recieverId, chatId);
-      this.Chat.getCommunicationData(this.account.uid, recieverId, chatId, 0, null);
+      this.Chat.getCommunicationData(this.account.uid, initiatorId, recieverId, chatId, 0, null);
       //this.ChatWindows.scrollDownInChatBody(this.chatBody);
 
       console.log("Initiate connection: " + chatId);
@@ -189,33 +188,6 @@ export class MessengerCore extends SocketEcho {
     }
 
   }
-
-  public postMessage(index) {
-    var Text = this.messageText.nativeElement.value;
-    if (Text == '')
-      return;
-
-    var data = {
-      type: 3,
-      text: Text,
-      salesPlanId: this.Chat.Window[index].salesPlanId,
-      chatId: this.Chat.Window[index]['chatId'],
-      senderId: this.account.uid,
-      recieverId: this.Chat.Window[index]['recieverId']
-
-    }
-    console.log(this.Contacts[index]);
-
-    this.api.post('communication', data, 'secure').subscribe(response => {
-
-      console.log(response);
-      this.messageText.nativeElement.value = '';
-      this.Chat.scrollDownInChatBody(this.chatBody);
-
-    });
-
-  }
-
 
 
 }
