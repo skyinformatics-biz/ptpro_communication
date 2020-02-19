@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { ChatWindows } from '../../core/chat-windows.service';
-import { Events } from '../../core/events.service';
+import { ChatWindows } from '../../services/chat-windows.service';
+import { Events } from '../../services/events.service';
 import { RestfulAPI } from '../../../../../providers/services/RestfulAPI.service';
 import { SharingService } from '../../../../../providers/guards/sharing.service';
 import { SocketEcho } from '../../../../../providers/services/SocketEcho.service'
@@ -26,16 +26,13 @@ export class MessagesComponent implements OnInit {
   constructor(private Chat: ChatWindows, private events: Events, private api: RestfulAPI, private account: SharingService, private socket: SocketEcho) {
     //super(api, account, socket);
 
-    this.events.Manager.subscribe(
+    this.events.chatWindow.eventHandler.subscribe(
       (data: any) => {
 
         if (data.task === 'requestMessage') {
 
           this.Chat.Window[0]['messages'][data.index].accepted = data.desicion;
           this.Chat.Window[0]['messages'][data.index].text = 'Kontakten er etablert';
-
-
-
         }
 
       });
@@ -76,8 +73,9 @@ export class MessagesComponent implements OnInit {
       console.log('desicion', data);
       console.log('res', response);
 
-      this.events.requestDesicion(value, index, chatId);
-      this.events.updateContact(index, value);
+      this.events.messenger.updateContact(index, value);
+      this.events.chatWindow.requestMessageOption(value, index, chatId);
+      
 
     });
 

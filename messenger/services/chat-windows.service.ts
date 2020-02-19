@@ -2,7 +2,7 @@ import { Injectable, ViewChild, ElementRef } from '@angular/core';
 // @ts-ignore
 import { RestfulAPI } from '../../../../providers/services/RestfulAPI.service';
 import { SharingService } from '../../../../providers/guards/sharing.service';
-import { MessengerCore } from './messenger-core.service'
+import { MessengerCore } from '../core/messenger-core.service'
 import { SocketEcho } from '../../../../providers/services/SocketEcho.service'
 
 @Injectable({
@@ -57,11 +57,6 @@ export class ChatWindows {
 
       this.Window[0].salesPlanId = response.salesPlanId;
       this.Window[0].loaded = true;
-
-
-
-     
-
 
     });
   }

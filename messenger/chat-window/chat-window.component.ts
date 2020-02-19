@@ -1,7 +1,8 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { ChatWindows } from '../core/chat-windows.service'
+import { Component, OnInit, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
+import { ChatWindows } from '../services/chat-windows.service'
 import { SharingService } from '../../../../providers/guards/sharing.service';
 import { RestfulAPI } from '../../../../providers/services/RestfulAPI.service';
+import { Events } from '../services/events.service'
 
 @Component({
   selector: 'app-chat-window',
@@ -11,16 +12,26 @@ import { RestfulAPI } from '../../../../providers/services/RestfulAPI.service';
 export class ChatWindowComponent implements OnInit {
 
   @ViewChild('messageText', { read: ElementRef, static: false }) messageText: ElementRef;
-  @ViewChild("ChatBody", { read: ElementRef, static: false }) public chatBody: ElementRef;
+  @ViewChild("chatBody", { read: ElementRef, static: false }) public chatBody: ElementRef;
 
-  constructor(public Chat: ChatWindows, public account:SharingService,public api: RestfulAPI) { }
+  constructor(public Chat: ChatWindows, public account: SharingService, public api: RestfulAPI, public events: Events) { }
 
   ngOnInit() {
+
+
+  }
+
+  ngAfterViewInit() {
+    if(this.Chat.Window[0].open){
+      this.scrollDownInChatBody();
+    }
+  
   }
 
   public getChatWindow(index = 0) {
 
     try {
+
       return this.Chat.Window[index].open;
     } catch (error) {
       return false;
@@ -29,7 +40,14 @@ export class ChatWindowComponent implements OnInit {
   }
 
   public toggleChatWindow(index) {
+    if (this.Chat.Window[index].open) {
 
+      this.Chat.Window[index].open = false;
+    }
+    else {
+      this.Chat.Window[index].open = true;
+
+    }
   }
 
   public postMessage(index = 0) {
@@ -46,12 +64,14 @@ export class ChatWindowComponent implements OnInit {
       'recieverId': this.Chat.Window[index]['recieverId']
 
     }
- 
+
     this.api.post('communication', data, 'secure').subscribe(response => {
 
-      console.log(response);
+      console.log("Message send response: ", response);
       this.messageText.nativeElement.value = '';
+      this.events.chatWindow.newMessage(data);
       this.scrollDownInChatBody();
+
 
     });
   }
@@ -60,6 +80,7 @@ export class ChatWindowComponent implements OnInit {
   private scrollDownInChatBody() {
     try {
       this.chatBody.nativeElement.lastChild.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'nearest' });
+
 
     } catch (error) {
       console.log(error);

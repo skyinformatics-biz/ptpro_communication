@@ -5,13 +5,13 @@ import { RestfulAPI } from '../../../providers/services/RestfulAPI.service';
 // @ts-ignore
 import { SocketEcho } from '../../../providers/services/SocketEcho.service';
 // @ts-ignore
-import { Events } from './core/events.service';
+import { Events } from './services/events.service';
 // @ts-ignore
 import { AuthService } from '../../../providers/guards/auth.service';
 // @ts-ignore
 import { SharingService } from '../../../providers/guards/sharing.service';
 
-import { ChatWindows } from './core/chat-windows.service';
+import { ChatWindows } from './services/chat-windows.service';
 
 
 @Component({
@@ -53,7 +53,7 @@ export class MessengerComponent extends MessengerCore implements OnInit {
 
       // 2. Listen for notification
       this.localEventsListener();
-      this.remoteNotificationListener();
+      //this.remoteNotificationListener();
       
 
       console.log('Contacts', this.Contacts);

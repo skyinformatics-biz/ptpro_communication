@@ -4,13 +4,13 @@ import { RestfulAPI } from '../../../../providers/services/RestfulAPI.service';
 // @ts-ignore
 import { SocketEcho } from '../../../../providers/services/SocketEcho.service';
 
-import { Events } from './events.service';
+import { Events } from '../services/events.service';
 
 import { AuthService } from '../../../../providers/guards/auth.service';
 
 import { SharingService } from '../../../../providers/guards/sharing.service';
 
-import { ChatWindows } from './chat-windows.service';
+import { ChatWindows } from '../services/chat-windows.service';
 
 @Injectable({
   providedIn: 'root'
@@ -87,7 +87,6 @@ export class MessengerCore extends SocketEcho {
           this.Chat.Window[0]['messages'].push({ 'currentUser': false, 'text': data.text, 'senderId': data.senderId, 'recieverId': data.recieverId, 'type': data.type });
         }
 
-
       })
       .listen('.requestMessage.response', (response) => {
         try {
@@ -103,17 +102,19 @@ export class MessengerCore extends SocketEcho {
   }
 
   public localEventsListener() {
-    this.events.Manager.subscribe(
-      (EventResponse: any) => {
+    this.events.messenger.eventHandler.subscribe(
+      (eventData: any) => {
 
-        if (EventResponse.task === 'newContact') {
+        console.log(eventData);
+
+        if (eventData.task === 'newContact') {
           // Local eventResponse for NewContact
-          const responseData = EventResponse['data'];
+          const responseData = eventData['data'];
           // Response data contact
           const contact = responseData['contact'];
 
           // Add more params to the response Contact
-          var remote = (EventResponse['remote'] === true) ? ' mottat' : ' sendt';
+          var remote = (eventData['remote'] === true) ? ' mottat' : ' sendt';
           contact.title = contact.title + remote;
           contact.bold = true;
           contact.unread = 1;
@@ -127,15 +128,22 @@ export class MessengerCore extends SocketEcho {
           this.TotalContacts = this.TotalContacts + 1;
           this.MessengerOpened = true;
         }
-        else if (EventResponse.task === 'updateContact') {
+        else if (eventData.task === 'updateContact') {
 
-          console.log('context index', EventResponse);
+          this.Contacts[eventData.index].accepted = eventData.accepted;
+          this.Contacts[eventData.index].bold = false;
+        }
 
-          //var i = this.Contacts.findIndex(i => i.id === EventResponse.chatId);
-          this.Contacts[EventResponse.index].accepted = EventResponse.accepted;
-          this.Contacts[EventResponse.index].bold = false;
+      });
 
-        
+      /* Local chatWindow listener **/
+    this.events.chatWindow.eventHandler.subscribe(
+      (eventData: any) => {
+
+        if(eventData.task === 'newMessage'){
+          
+          this.Chat.Window[0]['messages'].push(eventData);
+          
         }
 
       });
@@ -145,7 +153,7 @@ export class MessengerCore extends SocketEcho {
 
     this.Chat.messagesLoaded = false;
 
-    if (this.Chat.Window[0]['open'] == false) {
+    if (this.Chat.Window[0].open == false) {
 
       this.Chat.Window[0].open = this.Chat.Window[0].loaded = true;
       this.Chat.Window[0].title = title;
@@ -167,7 +175,7 @@ export class MessengerCore extends SocketEcho {
     }
     else {
 
-      this.Chat.close(index);
+      this.Chat.close(0);
 
       this.Chat.Window[0].open = true;
       this.Chat.Window[0].title = title;
@@ -180,7 +188,7 @@ export class MessengerCore extends SocketEcho {
       this.Contacts[index].unread = 0;
 
       this.remoteCommunicationListener(this.account.uid, recieverId, chatId);
-      this.Chat.getCommunicationData(this.account.uid, recieverId, chatId, 0, null);
+      this.Chat.getCommunicationData(this.account.uid, initiatorId, recieverId, chatId, 0, null);
       //this.ChatWindows.scrollDownInChatBody(this.chatBody);
 
       console.log("Initiate/Close connection: " + chatId);
