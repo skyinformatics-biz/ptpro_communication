@@ -69,7 +69,6 @@ export class ChatWindowComponent implements OnInit {
 
       console.log("Message send response: ", response);
       this.messageText.nativeElement.value = '';
-      this.events.chatWindow.newMessage(data);
       this.scrollDownInChatBody();
 
 

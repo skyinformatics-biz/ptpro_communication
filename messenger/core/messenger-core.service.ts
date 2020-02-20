@@ -87,6 +87,8 @@ export class MessengerCore extends SocketEcho {
           this.Chat.Window[0]['messages'].push({ 'currentUser': false, 'text': data.text, 'senderId': data.senderId, 'recieverId': data.recieverId, 'type': data.type });
         }
 
+        console.log("Sock MSG recieved", data);
+
       })
       .listen('.requestMessage.response', (response) => {
         try {
