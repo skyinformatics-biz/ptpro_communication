@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewChecked, ElementRef } from '@angular/core';
 import { ChatWindows } from '../services/chat-windows.service'
 import { SharingService } from '../../../../providers/guards/sharing.service';
 import { RestfulAPI } from '../../../../providers/services/RestfulAPI.service';
@@ -21,7 +21,7 @@ export class ChatWindowComponent implements OnInit {
 
   }
 
-  ngAfterViewInit() {
+  ngAfterViewChecked() {
     if(this.Chat.Window[0].open){
       this.scrollDownInChatBody();
     }
