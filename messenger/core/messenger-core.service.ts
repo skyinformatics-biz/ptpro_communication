@@ -51,12 +51,16 @@ export class MessengerCore extends SocketEcho {
 
     window.Echo.private('Notification.User.' + this.account.uid)
       .listen('.Notification.response', (response) => {
+        
+        console.log("Notification", response);
 
         /* Type 0 - Update Contact list and unread messages */
         if (response.type === 0) {
 
-          this.TotalMessages = response['data']['total_unread'];
-          this.Contacts = response['data']['contacts'];
+         
+
+          this.TotalMessages = response['total_unread'];
+          this.Contacts = response['contacts'];
 
 
         }
@@ -67,7 +71,7 @@ export class MessengerCore extends SocketEcho {
         else if (response.type === 2) {
 
         }
-        console.log('Notification: ', response);
+ 
       });
 
   }

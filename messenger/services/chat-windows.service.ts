@@ -69,9 +69,9 @@ export class ChatWindows {
     this.Window[0].loaded = false;
     this.Window[0].messages = null;
     //this.Contacts[index]['messages'] = null;
-    this.SocketEcho.CloseConnection(this.Window[0].chatId);
+    this.SocketEcho.CloseConnection('COM.' + this.Window[0].chatId);
 
-    console.log("Connection closed", this.Window);
+    
   }
 
   
