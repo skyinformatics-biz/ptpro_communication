@@ -62,6 +62,7 @@ class MessengerEvents {
         this.MessengerEvents[0] = { task: 'newContact', completion: false, data: [], 'remote': false };
         this.MessengerEvents[1] = { task: 'requestMessage', accepted: 2, data: [] };
         this.MessengerEvents[2] = { task: 'updateContact', data: [] };
+        this.MessengerEvents[3] = { task: 'newMessage', data: [] };
     }
 
     public newContact(data, remote = false) {

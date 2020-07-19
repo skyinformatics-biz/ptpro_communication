@@ -82,8 +82,6 @@ export class MessengerCore extends SocketEcho {
     // Communication channel exist of, sender, reciever and channel ids.
     window.Echo.private('COM.' + Channel)
       .listen('.message.created', (data) => {
-
-
         if (this.account.uid == data.senderId) {
           this.Chat.Window[0]['messages'].push({ 'currentUser': true, 'text': data.text, 'senderId': data.senderId, 'recieverId': data.recieverId, 'type': data.type });
         }
