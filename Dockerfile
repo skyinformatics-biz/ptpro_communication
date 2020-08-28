@@ -1,5 +1,5 @@
 FROM imagestry.cloudinfo.biz:5000/devenv
-MAINTAINER Elias Dev
+LABEL Elias Dev
 
 COPY ./ /www/modules/communication
 
