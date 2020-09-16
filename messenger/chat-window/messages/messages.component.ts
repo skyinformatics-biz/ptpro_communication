@@ -12,8 +12,8 @@ import { SocketEcho } from '../../../../../providers/services/SocketEcho.service
 })
 export class MessagesComponent implements OnInit {
 
-  @ViewChild("Messages", { read: ElementRef, static: false }) private Messages: ElementRef;
-  @ViewChild("chatBody", { read: ElementRef, static: false }) private chatBody: ElementRef;
+  @ViewChild("Messages", { read: ElementRef }) private Messages: ElementRef;
+  @ViewChild("chatBody", { read: ElementRef }) private chatBody: ElementRef;
 
   private initialMessageClient = "Your request to the trainer has been sent. Please wait for response for their response.";
   private initialMessageSeller = "You have got an request from a new client, please accept or reject the offer.";
@@ -23,7 +23,7 @@ export class MessagesComponent implements OnInit {
     this.scrollDownInChat()
   }
 
-  constructor(private Chat: ChatWindows, private events: Events, private api: RestfulAPI, private account: SharingService, private socket: SocketEcho) {
+  constructor(public Chat: ChatWindows, private events: Events, private api: RestfulAPI, private account: SharingService, private socket: SocketEcho) {
     //super(api, account, socket);
 
     this.events.chatWindow.eventHandler.subscribe(

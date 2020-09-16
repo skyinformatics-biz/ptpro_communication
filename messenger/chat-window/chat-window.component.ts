@@ -11,8 +11,8 @@ import { Events } from '../services/events.service'
 })
 export class ChatWindowComponent implements OnInit {
 
-  @ViewChild('messageText', { read: ElementRef, static: false }) messageText: ElementRef;
-  @ViewChild("chatBody", { read: ElementRef, static: false }) public chatBody: ElementRef;
+  @ViewChild('messageText', { read: ElementRef }) messageText: ElementRef;
+  @ViewChild("chatBody", { read: ElementRef }) public chatBody: ElementRef;
 
   constructor(public Chat: ChatWindows, public account: SharingService, public api: RestfulAPI, public events: Events) { }
 

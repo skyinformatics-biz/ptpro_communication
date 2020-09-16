@@ -1,4 +1,4 @@
-import { Injectable, ViewChild, ElementRef } from '@angular/core';
+import { Injectable, ViewChild, ElementRef, Directive } from '@angular/core';
 
 import { RestfulAPI } from '../../../../providers/services/RestfulAPI.service';
 // @ts-ignore
@@ -12,6 +12,7 @@ import { SharingService } from '../../../../providers/guards/sharing.service';
 
 import { ChatWindows } from '../services/chat-windows.service';
 
+@Directive()
 @Injectable({
   providedIn: 'root'
 })
@@ -32,7 +33,7 @@ export class MessengerCore extends SocketEcho {
   public TotalContacts: number = 0;
 
   // Native
-  @ViewChild("requestContact", { read: ElementRef, static: false }) private requestContact: ElementRef;
+  @ViewChild("requestContact", { read: ElementRef }) private requestContact: ElementRef;
 
 
   constructor(public api: RestfulAPI,
