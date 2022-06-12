@@ -15,10 +15,10 @@ The developer should follow strictly defined practices
 
 ```mermaid
 sequenceDiagram
-Frontend GUI->> LocalEvent: Send Message, Event
-LocalEvent-->> Frontend GUI: Respond Immediatly
-LocalEvent->> API: Send Message
-API-->> LocalEvent: Recieve Message
+Frontend GUI->> Local: Send Message, Event
+Local-->> Frontend GUI: Respond Immediatly
+Local->> API: Send Message
+API-->> Local: Recieve Message
 ```
 ####  Description
  - **Frontend** GUI: Is the frontend user interface.
