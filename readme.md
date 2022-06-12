@@ -17,8 +17,8 @@ The developer should follow strictly defined practices
 sequenceDiagram
 Frontend GUI->> LocalEvent: Send Message, Event
 LocalEvent-->> Frontend GUI: Respond Immediatly
-Frontend GUI->> API: Send Message
-API-->> Frontend GUI: Recieve Message
+LocalEvent->> API: Send Message
+API-->> LocalEvent: Recieve Message
 ```
 ####  Description
  - **Frontend** GUI: Is the frontend user interface.
